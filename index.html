@@ -230,14 +230,32 @@ function showGame() {
 
 // --- LOGIQUE AUDIO (JITSI) ---
 function setupAudio(roomCode) {
+    if (typeof JitsiMeetExternalAPI === 'undefined') {
+        console.error("Jitsi SDK non chargé. Vérifie ta connexion internet.");
+        alert("Audio-Fehler: SDK konnte nicht geladen werden.");
+        return;
+    }
+
     const options = {
-        roomName: "SagUns_Audio_" + roomCode,
-        width: 0, height: 0,
+        roomName: "SagUns_Audio_Reel_" + roomCode,
+        width: "1px", // Un pixel pour forcer l'existence visuelle
+        height: "1px",
         parentNode: document.querySelector('#jitsi-container'),
-        configOverwrite: { startWithAudioMuted: false, startWithVideoMuted: true, prejoinPageEnabled: false },
+        configOverwrite: { 
+            startWithAudioMuted: false, 
+            startWithVideoMuted: true, 
+            prejoinPageEnabled: false,
+            disableDeepLinking: true // Empêche d'ouvrir l'app Jitsi si elle est installée
+        },
     };
-    jitsiApi = new JitsiMeetExternalAPI("meet.jit.si", options);
-    jitsiApi.executeCommand('displayName', myName);
+    
+    try {
+        jitsiApi = new JitsiMeetExternalAPI("meet.jit.si", options);
+        jitsiApi.executeCommand('displayName', myName);
+        console.log("Audio connecté pour la salle : " + roomCode);
+    } catch (e) {
+        console.error("Erreur Jitsi : ", e);
+    }
 }
 
 function toggleAudio() {
