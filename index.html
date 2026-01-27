@@ -66,115 +66,117 @@ const database = firebase.database();
 
 // --- DATA ---
 const cardsDatabase = [
-    { q: "Was ist dein Lieblingsessen aus deiner Heimat?", sub: ["Warum?", "Wann isst du es?", "Wer kocht es?", "Tradition?", "Zu besonderen Anlässen?", "Schwer zu kochen?", "Gesund?", "Vermisst du es?"] },
-    { q: "Was bedeutet Arbeit für dich?", sub: ["Pflicht?", "Erfüllung?", "Geld?", "Warum?", "Identität?", "Stabilität?", "Stress?", "Zukunft?"] },
-    { q: "Was war dein letzter Erfolg?", sub: ["Klein oder groß?", "Wann?", "Warum wichtig?", "Gefühl?", "Alleine oder im Team?", "Erwartet?", "Folgen?", "Motivierend?"] },
-    { q: "Was brauchst du zum Glücklichsein?", sub: ["Menschen?", "Zeit?", "Gesundheit?", "Warum?", "Materiell?", "Stabil?", "Kurzfristig?", "Langfristig?"] },
-    { q: "Was war dein letzter Misserfolg?", sub: ["Warum?", "Was gelernt?", "Heute besser?", "Wichtig?", "Emotional?", "Konsequenzen?", "Akzeptiert?", "Motivation danach?"] },
-    { q: "Was bedeutet Zuhause für dich?", sub: ["Ort?", "Menschen?", "Gefühl?", "Warum?", "Stabil?", "Kindheit?", "Heute anders?", "Zukunft?"] },
-    { q: "Was schätzt du an anderen Menschen?", sub: ["Ehrlichkeit?", "Respekt?", "Humor?", "Warum?", "Selten?", "Wichtig?", "Im Alltag?", "Beziehungen?"] },
-    { q: "Was machst du, wenn du traurig bist?", sub: ["Alleine?", "Mit jemandem?", "Was hilft?", "Warum?", "Musik?", "Zeit?", "Sprichst du darüber?", "Besser danach?"] },
-    { q: "Was möchtest du einmal besitzen?", sub: ["Warum?", "Wann?", "Nötig?", "Traum?", "Realistisch?", "Teuer?", "Symbolisch?", "Motivierend?"] },
-    { q: "Was ist dein Lieblingswort?", sub: ["Warum?", "In welcher Sprache?", "Bedeutung?", "Oft benutzt?", "Gefühl?", "Kurz oder lang?", "Seit wann?", "Persönlich?"] },
-    { q: "Was bedeutet Erfolg im Leben?", sub: ["Persönlich?", "Gesellschaft?", "Geld?", "Warum?", "Zeit?", "Gesundheit?", "Balance?", "Veränderlich?"] },
-    { q: "Was möchtest du verbessern?", sub: ["In dir?", "Im Alltag?", "Warum?", "Wie?", "Seit wann?", "Realistisch?", "Schritt für Schritt?", "Ziel?"] },
-    { q: "Was war dein größter Fehler?", sub: ["Warum?", "Was gelernt?", "Heute anders?", "Wichtig?", "Emotional?", "Konsequenzen?", "Akzeptiert?", "Weitergeholfen?"] },
-    { q: "Was motiviert dich morgens?", sub: ["Ziel?", "Pflicht?", "Menschen?", "Warum?", "Routine?", "Energie?", "Stimmung?", "Konstant?"] },
-    { q: "Was bedeutet Respekt für dich?", sub: ["Warum?", "Erfahrungen?", "Wichtig?", "Im Alltag?", "Gegenseitig?", "Grenzen?", "Kultur?", "Vorleben?"] },
-    { q: "Was würdest du gerne ändern?", sub: ["In deinem Leben?", "Warum?", "Möglich?", "Wann?", "Erster Schritt?", "Hilfe nötig?", "Risiken?", "Ziel?"] },
-    { q: "Was ist dein Lieblingsmoment am Tag?", sub: ["Warum?", "Wann?", "Mit wem?", "Gefühl?", "Ruhig?", "Kurz?", "Bewusst?", "Jeden Tag?"] },
-    { q: "Was macht dich stolz?", sub: ["Warum?", "Wann?", "Erfahrung?", "Wichtig?", "Alleine?", "Anerkennung?", "Langfristig?", "Motivierend?"] },
-    { q: "Was willst du in fünf Jahren erreicht haben?", sub: ["Warum?", "Wie?", "Mit wem?", "Realistisch?", "Beruflich?", "Privat?", "Finanziell?", "Zufriedenheit?"] },
-    { q: "Was möchtest du noch erleben?", sub: ["Warum?", "Wann?", "Mit wem?", "Traum?", "Reisen?", "Herausforderung?", "Emotional?", "Einmalig?"] },
-    { q: "Was isst du gar nicht gern?", sub: ["Warum?", "Schon probiert?", "Immer?", "Vermeidbar?", "Kindheit?", "Geschmack?", "Geruch?", "Tolerierbar?"] },
-    { q: "Wie wichtig ist dir Pünktlichkeit?", sub: ["Warum?", "Im Alltag?", "Bei Arbeit?", "Erfahrungen?", "Konsequenzen?", "Kultur?", "Stress?", "Flexibel?"] },
-    { q: "Was war dein größter Traum als Kind?", sub: ["Warum?", "Erfüllt?", "Noch möglich?", "Geändert?", "Einfluss?", "Realistisch?", "Heute wichtig?", "Gefühl damals?"] },
-    { q: "Was bedeutet Erfolg für junge Menschen?", sub: ["Heute?", "Früher?", "Unterschiede?", "Warum?", "Druck?", "Soziale Medien?", "Vergleich?", "Gesund?"] },
-    { q: "Was lernst du gerade?", sub: ["Warum?", "Wo?", "Schwierig?", "Nützlich?", "Motivation?", "Zeitaufwand?", "Ziel?", "Fortschritt?"] },
-    { q: "Was würdest du deinem jüngeren Ich sagen?", sub: ["Warum?", "Erfahrung?", "Fehler?", "Rat?", "Trost?", "Warnung?", "Motivation?", "Ehrlich?"] },
-    { q: "Was ist dein Lieblingsfeiertag?", sub: ["Warum?", "Mit wem?", "Tradition?", "Essen?", "Stimmung?", "Vorbereitung?", "Erinnerungen?", "Jedes Jahr?"] },
-    { q: "Was macht einen guten Tag aus?", sub: ["Morgen?", "Arbeit?", "Abend?", "Warum?", "Menschen?", "Gefühl?", "Erfolg?", "Ruhe?"] },
-    { q: "Wie gehst du mit Problemen um?", sub: ["Alleine?", "Mit Hilfe?", "Sofort?", "Warum?", "Strategie?", "Erfahrung?", "Erfolg?", "Veränderung?"] },
-    { q: "Was möchtest du dieses Jahr lernen?", sub: ["Warum?", "Wie?", "Wann?", "Ziel?", "Zeit?", "Motivation?", "Schwierigkeiten?", "Erfolgskriterium?"] },
-    { q: "Was machst du in deiner Freizeit?", sub: ["Regelmäßig?", "Alleine?", "Mit anderen?", "Warum?", "Drinnen?", "Draußen?", "Zeitaufwand?", "Lieblingsaktivität?"] },
-    { q: "Was würdest du nie vergessen?", sub: ["Erlebnis?", "Person?", "Moment?", "Warum?", "Emotional?", "Lange her?", "Heute wichtig?", "Einfluss?"] },
-    { q: "Was stresst dich im Alltag?", sub: ["Arbeit?", "Menschen?", "Zeit?", "Wie reagierst du?", "Kurzfristig?", "Langfristig?", "Kontrollierbar?", "Lösung?"] },
-    { q: "Wie wichtig ist Bildung für dich?", sub: ["Warum?", "Eigene Erfahrung?", "Zukunft?", "Ziel?", "Formell?", "Informell?", "Motivation?", "Zugang?"] },
-    { q: "Was machst du, wenn du müde bist?", sub: ["Schlafen?", "Kaffee?", "Pause?", "Warum?", "Hilft?", "Kurz oder lang?", "Alltag?", "Gesund?"] },
-    { q: "Was bedeutet Freundschaft für dich?", sub: ["Vertrauen?", "Zeit?", "Hilfe?", "Warum?", "Grenzen?", "Langfristig?", "Pflege?", "Veränderung?"] },
-    { q: "Was ist dein Lieblingsfach?", sub: ["Warum?", "Seit wann?", "Nützlich?", "Schwierig?", "Lehrer?", "Praxis?", "Motivation?", "Erfolg?"] },
-    { q: "Was war dein schönster Moment?", sub: ["Wann?", "Mit wem?", "Warum?", "Unvergesslich?", "Gefühl?", "Kurz oder lang?", "Ort?", "Wiederholen?"] },
-    { q: "Was machst du bei Langeweile?", sub: ["Handy?", "Schlafen?", "Spazieren?", "Warum?", "Alleine?", "Zeit?", "Produktiv?", "Gewohnheit?"] },
-    { q: "Was erwartest du von der Zukunft?", sub: ["Hoffnungen?", "Ängste?", "Ziele?", "Warum?", "Kurzfristig?", "Langfristig?", "Realistisch?", "Optimistisch?"] },
-    { q: "Was ist dein Lieblingskleidungsstück?", sub: ["Warum?", "Wann trägst du es?", "Neu oder alt?", "Bequem?", "Alltag?", "Besonders?", "Teuer?", "Gefühl dabei?"] },
-    { q: "Wie planst du deinen Tag?", sub: ["Mit Liste?", "Im Kopf?", "Spontan?", "Warum?", "Morgens?", "Abends?", "Flexibel?", "Erfolgreich?"] },
-    { q: "Was war dein letzter Fehler?", sub: ["Was passiert?", "Was gelernt?", "Wiederholen?", "Warum?", "Klein oder groß?", "Alleine?", "Konsequenzen?", "Verbessert?"] },
-    { q: "Was bedeutet Erfolg in der Arbeit?", sub: ["Anerkennung?", "Geld?", "Spaß?", "Warum?", "Team?", "Ergebnisse?", "Stabilität?", "Zufriedenheit?"] },
-    { q: "Was motiviert dich?", sub: ["Ziele?", "Menschen?", "Druck?", "Warum?", "Kurzfristig?", "Langfristig?", "Stark?", "Konstant?"] },
-    { q: "Wie verbringst du Zeit alleine?", sub: ["Gerne?", "Was machst du?", "Warum?", "Oft?", "Entspannt?", "Produktiv?", "Bewusst?", "Notwendig?"] },
-    { q: "Was war dein letzter Urlaub?", sub: ["Wo?", "Wie lange?", "Mit wem?", "Schön?", "Entspannt?", "Aktiv?", "Kosten?", "Nochmal?"] },
-    { q: "Was würdest du neu lernen wollen?", sub: ["Warum?", "Wann?", "Wie?", "Realistisch?", "Zeit?", "Kosten?", "Motivation?", "Ziel?"] },
-    { q: "Was ist dir im Leben am wichtigsten?", sub: ["Warum?", "Seit wann?", "Hat sich geändert?", "Priorität?", "Konflikte?", "Opfer?", "Stabil?", "Zukunft?"] },
-    { q: "Wie wichtig ist dir Ehrlichkeit?", sub: ["Warum?", "Immer?", "Schwierig?", "Erfahrungen?", "Grenzen?", "Konsequenzen?", "Im Alltag?", "In Beziehungen?"] },
-    { q: "Wie wichtig ist Familie für dich?", sub: ["Warum?", "Kontakt oft?", "Unterstützung?", "Zusammenhalt?", "Nähe?", "Konflikte?", "Gemeinsame Zeit?", "Zukunft?"] },
-    { q: "Was isst du zum Frühstück?", sub: ["Immer gleich?", "Gesund?", "Schnell?", "Warum?", "Alleine?", "Unter der Woche?", "Am Wochenende?", "Ohne Frühstück möglich?"] },
-    { q: "Was war dein letzter Kauf?", sub: ["Was?", "Warum?", "Nötig?", "Teuer?", "Geplant?", "Zufrieden?", "Wieder kaufen?", "Lehre daraus?"] },
-    { q: "Was würdest du sofort ändern?", sub: ["In deinem Leben?", "In der Welt?", "Warum?", "Realistisch?", "Kurzfristig?", "Langfristig?", "Alleine?", "Erste Schritte?"] },
-    { q: "Wie lernst du am besten?", sub: ["Alleine?", "Mit Videos?", "Mit Lehrer?", "Warum?", "Zeit?", "Ort?", "Wiederholung?", "Erfolg?"] },
-    { q: "Welche Arbeit machst du gerade?", sub: ["Seit wann?", "Gefällt sie dir?", "Warum?", "Zukunft?", "Stress?", "Arbeitszeit?", "Team?", "Motivation?"] },
-    { q: "Was bedeutet Freiheit für dich?", sub: ["Zeit?", "Geld?", "Ort?", "Warum?", "Grenzen?", "Verantwortung?", "Erfahrung?", "Wichtig?"] },
-    { q: "Welche Tradition magst du?", sub: ["Familie?", "Land?", "Feiertag?", "Warum?", "Seit wann?", "Ritual?", "Essen?", "Gefühl?"] },
-    { q: "Wie wichtig ist Gesundheit für dich?", sub: ["Sport?", "Essen?", "Vorsorge?", "Warum?", "Körper?", "Geist?", "Alltag?", "Zukunft?"] },
-    { q: "Was machst du vor dem Schlafen?", sub: ["Handy?", "Lesen?", "Musik?", "Immer gleich?", "Dauer?", "Ritual?", "Entspannend?", "Schlafqualität?"] },
-    { q: "Hast du Haustiere?", sub: ["Welche?", "Warum?", "Pflege?", "Seit wann?", "Kosten?", "Zeitaufwand?", "Alleine?", "Möchtest du mehr?"] },
-    { q: "Was ist dein Lieblingsort?", sub: ["Wo?", "Warum?", "Alleine oder mit anderen?", "Oft dort?", "Drinnen oder draußen?", "Ruhig oder lebendig?", "Erinnerungen?", "Gefühl dort?"] },
-    { q: "Wie stellst du dir dein Leben in 10 Jahren vor?", sub: ["Job?", "Familie?", "Wohnort?", "Zufrieden?", "Finanziell?", "Gesundheit?", "Realistisch?", "Warum so?"] },
-    { q: "Was ist dein Lieblingsgetränk?", sub: ["Heiß oder kalt?", "Wann trinkst du es?", "Zu welchem Essen?", "Warum?", "Täglich?", "Gesund?", "Zucker?", "Alternative?"] },
-    { q: "Was hast du zuletzt gelernt?", sub: ["Wo?", "Warum?", "Nützlich?", "Schwierig?", "Theorie oder Praxis?", "Kurz oder lang?", "Alleine?", "Nochmal lernen?"] },
-    { q: "Was machst du bei schlechtem Wetter?", sub: ["Drinnen?", "Filme?", "Lesen?", "Schlafen?", "Produktiv?", "Entspannt?", "Alleine?", "Warum?"] },
-    { q: "Welche Eigenschaft magst du an dir?", sub: ["Warum?", "Schon lange?", "Andere sehen das?", "Hilft im Alltag?", "In der Arbeit?", "Privat?", "Stabil?", "Möchtest du sie stärken?"] },
-    { q: "Welche Eigenschaft möchtest du ändern?", sub: ["Warum?", "Wie?", "Schon versucht?", "Schwierig?", "Seit wann?", "Alleine möglich?", "Hilfe?", "Realistisch?"] },
-    { q: "Was macht dich glücklich?", sub: ["Kleine Dinge?", "Menschen?", "Erfolge?", "Warum?", "Kurz oder langfristig?", "Täglich?", "Abhängig?", "Bewusst?"] },
-    { q: "Was macht dich wütend?", sub: ["Im Alltag?", "Selten oder oft?", "Wie reagierst du?", "Warum?", "Menschen?", "Situationen?", "Kontrollierbar?", "Lernbar?"] },
-    { q: "Was ist dir in Freundschaften wichtig?", sub: ["Ehrlichkeit?", "Zeit?", "Vertrauen?", "Warum?", "Unterstützung?", "Respekt?", "Humor?", "Langfristig?"] },
-    { q: "Hast du ein Vorbild?", sub: ["Wer?", "Warum?", "Persönlich oder bekannt?", "Seit wann?", "Was bewunderst du?", "Ähnlich wie du?", "Motivierend?", "Realistisch?"] },
-    { q: "Was machst du morgens zuerst?", sub: ["Handy?", "Frühstück?", "Sport?", "Warum?", "Immer gleich?", "Unter der Woche?", "Am Wochenende?", "Hilfreich?"] },
-    { q: "Was kannst du gar nicht leiden?", sub: ["Warum?", "Seit wann?", "Im Alltag?", "Vermeidbar?", "Menschen oder Dinge?", "Stark oder leicht?", "Reaktion?", "Konsequenzen?"] },
-    { q: "Welche Jahreszeit magst du am meisten?", sub: ["Warum?", "Was machst du dann?", "Reisen?", "Essen?", "Temperatur?", "Erinnerungen?", "Stimmung?", "Kleidung?"] },
-    { q: "Wie verbringst du deine Abende?", sub: ["Alleine?", "Mit Medien?", "Mit Familie?", "Entspannt oder aktiv?", "Immer gleich?", "Wochentage?", "Zeitpunkt?", "Warum so?"] },
-    { q: "Was bedeutet Erfolg für dich?", sub: ["Geld?", "Zufriedenheit?", "Anerkennung?", "Warum?", "Privat oder beruflich?", "Kurzfristig?", "Langfristig?", "Messbar?"] },
-    { q: "Welche Arbeit würdest du nie machen?", sub: ["Warum?", "Zu schwer?", "Zu langweilig?", "Zu gefährlich?", "Schon erlebt?", "Geld egal?", "Stressig?", "Grenzen?"] },
-    { q: "Wie wichtig ist Geld für dich?", sub: ["Sehr?", "Wofür?", "Sparen?", "Teilen?", "Sicherheit?", "Freiheit?", "Stress?", "Genug?"] },
-    { q: "Was machst du am Handy am meisten?", sub: ["Social Media?", "Videos?", "Nachrichten?", "Wie lange?", "Nützlich?", "Ablenkung?", "Abends?", "Möchtest du ändern?"] },
-    { q: "Welche Musik hörst du am liebsten?", sub: ["Welche Art?", "Alleine oder mit Freunden?", "Beim Arbeiten?", "Warum diese Musik?", "Lieblingskünstler?", "Seit wann?", "Laut oder leise?", "Jeden Tag?"] },
-    { q: "Spielst du ein Instrument?", sub: ["Welches?", "Seit wann?", "Selbst gelernt?", "Wie oft?", "Schwer?", "Alleine oder mit anderen?", "Möchtest du besser werden?", "Warum dieses Instrument?"] },
-    { q: "Was machst du, wenn du Stress hast?", sub: ["Hilft es?", "Wie oft?", "Alleine?", "Gesund oder ungesund?", "Kurz oder lange?", "Schon lange so?", "Alternative?", "Warum das?"] },
-    { q: "Welche App benutzt du jeden Tag?", sub: ["Warum?", "Wie lange täglich?", "Ohne sie möglich?", "Seit wann?", "Privat oder Arbeit?", "Nützlich?", "Zeitfresser?", "Lieblingsfunktion?"] },
-    { q: "Was ist dein Lieblingsfilm?", sub: ["Genre?", "Wann zuletzt gesehen?", "Mit wem?", "Warum dieser Film?", "Alt oder neu?", "Mehrmals gesehen?", "Emotionen?", "Empfehlung?"] },
-    { q: "Treibst du Sport?", sub: ["Welche Sportart?", "Wie oft?", "Alleine oder im Team?", "Seit wann?", "Drinnen oder draußen?", "Warum?", "Gesund?", "Ziel?"] },
-    { q: "Was war dein größter Erfolg?", sub: ["Wann?", "Wie hast du dich gefühlt?", "War es schwer?", "Was hast du gelernt?", "Alleine geschafft?", "Beruflich oder privat?", "Warum wichtig?", "Stolz?"] },
-    { q: "Was war deine größte Herausforderung?", sub: ["Warum schwierig?", "Wie gelöst?", "Alleine?", "Heute anders?", "Lange gedauert?", "Stressig?", "Was gelernt?", "Wichtig für dich?"] },
-    { q: "Welche Sprache möchtest du lernen?", sub: ["Warum?", "Wie lernst du?", "Schwer?", "Schon angefangen?", "Für Arbeit?", "Für Reisen?", "Wie oft übst du?", "Zielniveau?"] },
-    { q: "Wie sieht dein perfekter tag aus?", sub: ["Morgen?", "Mittag?", "Abend?", "Mit wem?", "Arbeit oder frei?", "Drinnen oder draußen?", "Realistisch?", "Warum perfekt?"] },
-    { q: "Was ist dein absolutes Lieblingsessen?", sub: ["Selbst gekocht?", "Bestes Restaurant?", "Wie oft isst du das?", "Warum genau das?", "Süß oder salzig?", "Gesund oder ungesund?", "Seit wann?", "Mit wem isst du es gern?"] },
-    { q: "Was machst du am liebsten am Wochenende?", sub: ["Mit wem?", "Drinnen oder draußen?", "Seit wann?", "Kostet das viel Geld?", "Samstag oder Sonntag?", "Entspannt oder aktiv?", "Alleine möglich?", "Warum genau das?"] },
-    { q: "Erzähl uns von deinem Traumjob.", sub: ["Welches Gehalt?", "Warum dieser Beruf?", "Was musst du dafür lernen?", "Wo arbeitest du dann?", "Vollzeit oder Teilzeit?", "Im team?", "Stressig?", "Ab wann realistisch?"] },
-    { q: "Welches Land möchtest du unbedingt bereisen?", sub: ["Warum dorthin?", "Mit wem?", "Was willst du dort essen?", "Wie lange bleiben?", "Stadt oder Natur?", "Teuer?", "Alleine möglich?", "Wann?"] },
-    { q: "Was war dein schönster Urlaub bisher?", sub: ["Wann war das?", "Was war das Highlight?", "War es teuer?", "Würdest du nochmal hin?", "Mit wem?", "Wie lange?", "Entspannt oder aktiv?", "Warum so besonders?"] },
-    { q: "Hast du ein besonderes Talent?", sub: ["Wie hast du es gemerkt?", "Übst du viel?", "Kannst du es uns zeigen?", "Haben andere das auch?", "Seit wann?", "Nützlich?", "Beruflich?", "Möchtest du es verbessern?"] },
-    { q: "Was ist deine früheste Kindheitserinnerung?", sub: ["Wie alt warst du?", "Wer war dabei?", "War es ein glücklicher Moment?", "Wo war das?", "Klar oder verschwommen?", "Oft daran gedacht?", "Warum geblieben?", "Gefühl heute?"] },
-    { q: "Welches Buch hat dich beeindruckt?", sub: ["Worum geht es?", "Wem würdest du es schenken?", "Gibt es einen Film dazu?", "Warum dieses?", "Leicht zu lesen?", "Alt oder neu?", "Nochmals lesen?", "Was gelernt?"] },
-    { q: "Bist du ein Morgenmensch oder eine Nachteule?", sub: ["Warum?", "Wann stehst du auf?", "Was machst du nachts?", "Wann bist du produktiv?", "Schon immer so?", "Arbeit angepasst?", "Problematisch?", "Möchtest du es ändern?"] },
-    { q: "Was ist dein wichtigstes Ziel für dieses Jahr?", sub: ["Wie planst du das?", "Wer hilft dir?", "Was passiert, wenn du es schaffst?", "Ist es schwer?", "Warum dieses Ziel?", "Zeitplan?", "Risiken?", "Motivation?"] }
+    { "q": "Was ist dein Lieblingsessen aus deiner Heimat?", "sub": ["Warum?", "Wann isst du es?", "Wer kocht es?", "Tradition?", "Zu besonderen Anlässen?", "Schwer zu kochen?", "Gesund?", "Vermisst du es?"] },
+    { "q": "Was bedeutet Arbeit für dich?", "sub": ["Pflicht?", "Erfüllung?", "Geld?", "Warum?", "Identität?", "Stabilität?", "Stress?", "Zukunft?"] },
+    { "q": "Was war dein letzter Erfolg?", "sub": ["Klein oder groß?", "Wann?", "Warum wichtig?", "Gefühl?", "Alleine oder im Team?", "Erwartet?", "Folgen?", "Motivierend?"] },
+    { "q": "Was brauchst du zum Glücklichsein?", "sub": ["Menschen?", "Zeit?", "Gesundheit?", "Warum?", "Materiell?", "Stabil?", "Kurzfristig?", "Langfristig?"] },
+    { "q": "Was war dein letzter Misserfolg?", "sub": ["Warum?", "Was gelernt?", "Heute besser?", "Wichtig?", "Emotional?", "Konsequenzen?", "Akzeptiert?", "Motivation danach?"] },
+    { "q": "Was bedeutet Zuhause für dich?", "sub": ["Ort?", "Menschen?", "Gefühl?", "Warum?", "Stabil?", "Kindheit?", "Heute anders?", "Zukunft?"] },
+    { "q": "Was schätzt du an anderen Menschen?", "sub": ["Ehrlichkeit?", "Respekt?", "Humor?", "Warum?", "Selten?", "Wichtig?", "Im Alltag?", "Beziehungen?"] },
+    { "q": "Was machst du, wenn du traurig bist?", "sub": ["Alleine?", "Mit jemandem?", "Was hilft?", "Warum?", "Musik?", "Zeit?", "Sprichst du darüber?", "Besser danach?"] },
+    { "q": "Was möchtest du einmal besitzen?", "sub": ["Warum?", "Wann?", "Nötig?", "Traum?", "Realistisch?", "Teuer?", "Symbolisch?", "Motivierend?"] },
+    { "q": "Was ist dein Lieblingswort?", "sub": ["Warum?", "In welcher Sprache?", "Bedeutung?", "Oft benutzt?", "Gefühl?", "Kurz oder lang?", "Seit wann?", "Persönlich?"] },
+    { "q": "Was bedeutet Erfolg im Leben?", "sub": ["Persönlich?", "Gesellschaft?", "Geld?", "Warum?", "Zeit?", "Gesundheit?", "Balance?", "Veränderlich?"] },
+    { "q": "Was möchtest du verbessern?", "sub": ["In dir?", "Im Alltag?", "Warum?", "Wie?", "Seit wann?", "Realistisch?", "Schritt für Schritt?", "Ziel?"] },
+    { "q": "Was war dein größter Fehler?", "sub": ["Warum?", "Was gelernt?", "Heute anders?", "Wichtig?", "Emotional?", "Konsequenzen?", "Akzeptiert?", "Weitergeholfen?"] },
+    { "q": "Was motiviert dich morgens?", "sub": ["Ziel?", "Pflicht?", "Menschen?", "Warum?", "Routine?", "Energie?", "Stimmung?", "Konstant?"] },
+    { "q": "Was bedeutet Respekt für dich?", "sub": ["Warum?", "Erfahrungen?", "Wichtig?", "Im Alltag?", "Gegenseitig?", "Grenzen?", "Kultur?", "Vorleben?"] },
+    { "q": "Was würdest du gerne ändern?", "sub": ["In deinem Leben?", "Warum?", "Möglich?", "Wann?", "Erster Schritt?", "Hilfe nötig?", "Risiken?", "Ziel?"] },
+    { "q": "Was ist dein Lieblingsmoment am Tag?", "sub": ["Warum?", "Wann?", "Mit wem?", "Gefühl?", "Ruhig?", "Kurz?", "Bewusst?", "Jeden Tag?"] },
+    { "q": "Was macht dich stolz?", "sub": ["Warum?", "Wann?", "Erfahrung?", "Wichtig?", "Alleine?", "Anerkennung?", "Langfristig?", "Motivierend?"] },
+    { "q": "Was willst du in fünf Jahren erreicht haben?", "sub": ["Warum?", "Wie?", "Mit wem?", "Realistisch?", "Beruflich?", "Privat?", "Finanziell?", "Zufriedenheit?"] },
+    { "q": "Was möchtest du noch erleben?", "sub": ["Warum?", "Wann?", "Mit wem?", "Traum?", "Reisen?", "Herausforderung?", "Emotional?", "Einmalig?"] },
+    { "q": "Was isst du gar nicht gern?", "sub": ["Warum?", "Schon probiert?", "Immer?", "Vermeidbar?", "Kindheit?", "Geschmack?", "Geruch?", "Tolerierbar?"] },
+    { "q": "Wie wichtig ist dir Pünktlichkeit?", "sub": ["Warum?", "Im Alltag?", "Bei Arbeit?", "Erfahrungen?", "Konsequenzen?", "Kultur?", "Stress?", "Flexibel?"] },
+    { "q": "Was war dein größter Traum als Kind?", "sub": ["Warum?", "Erfüllt?", "Noch möglich?", "Geändert?", "Einfluss?", "Realistisch?", "Heute wichtig?", "Gefühl damals?"] },
+    { "q": "Was bedeutet Erfolg für junge Menschen?", "sub": ["Heute?", "Früher?", "Unterschiede?", "Warum?", "Druck?", "Soziale Medien?", "Vergleich?", "Gesund?"] },
+    { "q": "Was lernst du gerade?", "sub": ["Warum?", "Wo?", "Schwierig?", "Nützlich?", "Motivation?", "Zeitaufwand?", "Ziel?", "Fortschritt?"] },
+    { "q": "Was würdest du deinem jüngeren Ich sagen?", "sub": ["Warum?", "Erfahrung?", "Fehler?", "Rat?", "Trost?", "Warnung?", "Motivation?", "Ehrlich?"] },
+    { "q": "Was ist dein Lieblingsfeiertag?", "sub": ["Warum?", "Mit wem?", "Tradition?", "Essen?", "Stimmung?", "Vorbereitung?", "Erinnerungen?", "Jedes Jahr?"] },
+    { "q": "Was macht einen guten Tag aus?", "sub": ["Morgen?", "Arbeit?", "Abend?", "Warum?", "Menschen?", "Gefühl?", "Erfolg?", "Ruhe?"] },
+    { "q": "Wie gehst du mit Problemen um?", "sub": ["Alleine?", "Mit Hilfe?", "Sofort?", "Warum?", "Strategie?", "Erfahrung?", "Erfolg?", "Veränderung?"] },
+    { "q": "Was möchtest du dieses Jahr lernen?", "sub": ["Warum?", "Wie?", "Wann?", "Ziel?", "Zeit?", "Motivation?", "Schwierigkeiten?", "Erfolgskriterium?"] },
+    { "q": "Was machst du in deiner Freizeit?", "sub": ["Regelmäßig?", "Alleine?", "Mit anderen?", "Warum?", "Drinnen?", "Draußen?", "Zeitaufwand?", "Lieblingsaktivität?"] },
+    { "q": "Was würdest du nie vergessen?", "sub": ["Erlebnis?", "Person?", "Moment?", "Warum?", "Emotional?", "Lange her?", "Heute wichtig?", "Einfluss?"] },
+    { "q": "Was stresst dich im Alltag?", "sub": ["Arbeit?", "Menschen?", "Zeit?", "Wie reagierst du?", "Kurzfristig?", "Langfristig?", "Kontrollierbar?", "Lösung?"] },
+    { "q": "Wie wichtig ist Bildung für dich?", "sub": ["Warum?", "Eigene Erfahrung?", "Zukunft?", "Ziel?", "Formell?", "Informell?", "Motivation?", "Zugang?"] },
+    { "q": "Was machst du, wenn du müde bist?", "sub": ["Schlafen?", "Kaffee?", "Pause?", "Warum?", "Hilft?", "Kurz oder lang?", "Alltag?", "Gesund?"] },
+    { "q": "Was bedeutet Freundschaft für dich?", "sub": ["Vertrauen?", "Zeit?", "Hilfe?", "Warum?", "Grenzen?", "Langfristig?", "Pflege?", "Veränderung?"] },
+    { "q": "Was ist dein Lieblingsfach?", "sub": ["Warum?", "Seit wann?", "Nützlich?", "Schwierig?", "Lehrer?", "Praxis?", "Motivation?", "Erfolg?"] },
+    { "q": "Was war dein schönster Moment?", "sub": ["Wann?", "Mit wem?", "Warum?", "Unvergesslich?", "Gefühl?", "Kurz oder lang?", "Ort?", "Wiederholen?"] },
+    { "q": "Was machst du bei Langeweile?", "sub": ["Handy?", "Schlafen?", "Spazieren?", "Warum?", "Alleine?", "Zeit?", "Produktiv?", "Gewohnheit?"] },
+    { "q": "Was erwartest du von der Zukunft?", "sub": ["Hoffnungen?", "Ängste?", "Ziele?", "Warum?", "Kurzfristig?", "Langfristig?", "Realistisch?", "Optimistisch?"] },
+    { "q": "Was ist dein Lieblingskleidungsstück?", "sub": ["Warum?", "Wann trägst du es?", "Neu oder alt?", "Bequem?", "Alltag?", "Besonders?", "Teuer?", "Gefühl dabei?"] },
+    { "q": "Wie planst du deinen Tag?", "sub": ["Mit Liste?", "Im Kopf?", "Spontan?", "Warum?", "Morgens?", "Abends?", "Flexibel?", "Erfolgreich?"] },
+    { "q": "Was war dein letzter Fehler?", "sub": ["Was passiert?", "Was gelernt?", "Wiederholen?", "Warum?", "Klein oder groß?", "Alleine?", "Konsequenzen?", "Verbessert?"] },
+    { "q": "Was bedeutet Erfolg in der Arbeit?", "sub": ["Anerkennung?", "Geld?", "Spaß?", "Warum?", "Team?", "Ergebnisse?", "Stabilität?", "Zufriedenheit?"] },
+    { "q": "Was motiviert dich?", "sub": ["Ziele?", "Menschen?", "Druck?", "Warum?", "Kurzfristig?", "Langfristig?", "Stark?", "Konstant?"] },
+    { "q": "Wie verbringst du Zeit alleine?", "sub": ["Gerne?", "Was machst du?", "Warum?", "Oft?", "Entspannt?", "Produktiv?", "Bewusst?", "Notwendig?"] },
+    { "q": "Was war dein letzter Urlaub?", "sub": ["Wo?", "Wie lange?", "Mit wem?", "Schön?", "Entspannt?", "Aktiv?", "Kosten?", "Nochmal?"] },
+    { "q": "Was würdest du neu lernen wollen?", "sub": ["Warum?", "Wann?", "Wie?", "Realistisch?", "Zeit?", "Kosten?", "Motivation?", "Ziel?"] },
+    { "q": "Was ist dir im Leben am wichtigsten?", "sub": ["Warum?", "Seit wann?", "Hat sich geändert?", "Priorität?", "Konflikte?", "Opfer?", "Stabil?", "Zukunft?"] },
+    { "q": "Wie wichtig ist dir Ehrlichkeit?", "sub": ["Warum?", "Immer?", "Schwierig?", "Erfahrungen?", "Grenzen?", "Konsequenzen?", "Im Alltag?", "In Beziehungen?"] },
+    { "q": "Wie wichtig ist Familie für dich?", "sub": ["Warum?", "Kontakt oft?", "Unterstützung?", "Zusammenhalt?", "Nähe?", "Konflikte?", "Gemeinsame Zeit?", "Zukunft?"] },
+    { "q": "Was isst du zum Frühstück?", "sub": ["Immer gleich?", "Gesund?", "Schnell?", "Warum?", "Alleine?", "Unter der Woche?", "Am Wochenende?", "Ohne Frühstück möglich?"] },
+    { "q": "Was war dein letzter Kauf?", "sub": ["Was?", "Warum?", "Nötig?", "Teuer?", "Geplant?", "Zufrieden?", "Wieder kaufen?", "Lehre daraus?"] },
+    { "q": "Was würdest du sofort ändern?", "sub": ["In deinem Leben?", "In der Welt?", "Warum?", "Realistisch?", "Kurzfristig?", "Langfristig?", "Alleine?", "Erste Schritte?"] },
+    { "q": "Wie lernst du am besten?", "sub": ["Alleine?", "Mit Videos?", "Mit Lehrer?", "Warum?", "Zeit?", "Ort?", "Wiederholung?", "Erfolg?"] },
+    { "q": "Welche Arbeit machst du gerade?", "sub": ["Seit wann?", "Gefällt sie dir?", "Warum?", "Zukunft?", "Stress?", "Arbeitszeit?", "Team?", "Motivation?"] },
+    { "q": "Was bedeutet Freiheit für dich?", "sub": ["Zeit?", "Geld?", "Ort?", "Warum?", "Grenzen?", "Verantwortung?", "Erfahrung?", "Wichtig?"] },
+    { "q": "Welche Tradition magst du?", "sub": ["Familie?", "Land?", "Feiertag?", "Warum?", "Seit wann?", "Ritual?", "Essen?", "Gefühl?"] },
+    { "q": "Wie wichtig ist Gesundheit für dich?", "sub": ["Sport?", "Essen?", "Vorsorge?", "Warum?", "Körper?", "Geist?", "Alltag?", "Zukunft?"] },
+    { "q": "Was machst du vor dem Schlafen?", "sub": ["Handy?", "Lesen?", "Musik?", "Immer gleich?", "Dauer?", "Ritual?", "Entspannend?", "Schlafqualität?"] },
+    { "q": "Hast du Haustiere?", "sub": ["Welche?", "Warum?", "Pflege?", "Seit wann?", "Kosten?", "Zeitaufwand?", "Alleine?", "Möchtest du mehr?"] },
+    { "q": "Was ist dein Lieblingsort?", "sub": ["Wo?", "Warum?", "Alleine oder mit anderen?", "Oft dort?", "Drinnen oder draußen?", "Ruhig oder lebendig?", "Erinnerungen?", "Gefühl dort?"] },
+    { "q": "Wie stellst du dir dein Leben in 10 Jahren vor?", "sub": ["Job?", "Familie?", "Wohnort?", "Zufrieden?", "Finanziell?", "Gesundheit?", "Realistisch?", "Warum so?"] },
+    { "q": "Was ist dein Lieblingsgetränk?", "sub": ["Heiß oder kalt?", "Wann trinkst du es?", "Zu welchem Essen?", "Warum?", "Täglich?", "Gesund?", "Zucker?", "Alternative?"] },
+    { "q": "Was hast du zuletzt gelernt?", "sub": ["Wo?", "Warum?", "Nützlich?", "Schwierig?", "Theorie oder Praxis?", "Kurz oder lang?", "Alleine?", "Nochmal lernen?"] },
+    { "q": "Was machst du bei schlechtem Wetter?", "sub": ["Drinnen?", "Filme?", "Lesen?", "Schlafen?", "Produktiv?", "Entspannt?", "Alleine?", "Warum?"] },
+    { "q": "Welche Eigenschaft magst du an dir?", "sub": ["Warum?", "Schon lange?", "Andere sehen das?", "Hilft im Alltag?", "In der Arbeit?", "Privat?", "Stabil?", "Möchtest du sie stärken?"] },
+    { "q": "Welche Eigenschaft möchtest du ändern?", "sub": ["Warum?", "Wie?", "Schon versucht?", "Schwierig?", "Seit wann?", "Alleine möglich?", "Hilfe?", "Realistisch?"] },
+    { "q": "Was macht dich glücklich?", "sub": ["Kleine Dinge?", "Menschen?", "Erfolge?", "Warum?", "Kurz oder langfristig?", "Täglich?", "Abhängig?", "Bewusst?"] },
+    { "q": "Was macht dich wütend?", "sub": ["Im Alltag?", "Selten oder oft?", "Wie reagierst du?", "Warum?", "Menschen?", "Situationen?", "Kontrollierbar?", "Lernbar?"] },
+    { "q": "Was ist dir in Freundschaften wichtig?", "sub": ["Ehrlichkeit?", "Zeit?", "Vertrauen?", "Warum?", "Unterstützung?", "Respekt?", "Humor?", "Langfristig?"] },
+    { "q": "Hast du ein Vorbild?", "sub": ["Wer?", "Warum?", "Persönlich oder bekannt?", "Seit wann?", "Was bewunderst du?", "Ähnlich wie du?", "Motivierend?", "Realistisch?"] },
+    { "q": "Was machst du morgens zuerst?", "sub": ["Handy?", "Frühstück?", "Sport?", "Warum?", "Immer gleich?", "Unter der Woche?", "Am Wochenende?", "Hilfreich?"] },
+    { "q": "Was kannst du gar nicht leiden?", "sub": ["Warum?", "Seit wann?", "Im Alltag?", "Vermeidbar?", "Menschen oder Dinge?", "Stark oder leicht?", "Reaktion?", "Konsequenzen?"] },
+    { "q": "Welche Jahreszeit magst du am meisten?", "sub": ["Warum?", "Was machst du dann?", "Reisen?", "Essen?", "Temperatur?", "Erinnerungen?", "Stimmung?", "Kleidung?"] },
+    { "q": "Wie verbringst du deine Abende?", "sub": ["Alleine?", "Mit Medien?", "Mit Familie?", "Entspannt oder aktiv?", "Immer gleich?", "Wochentage?", "Zeitpunkt?", "Warum so?"] },
+    { "q": "Was bedeutet Erfolg für dich?", "sub": ["Geld?", "Zufriedenheit?", "Anerkennung?", "Warum?", "Privat oder beruflich?", "Kurzfristig?", "Langfristig?", "Messbar?"] },
+    { "q": "Welche Arbeit würdest du nie machen?", "sub": ["Warum?", "Zu schwer?", "Zu langweilig?", "Zu gefährlich?", "Schon erlebt?", "Geld egal?", "Stressig?", "Grenzen?"] },
+    { "q": "Wie wichtig ist Geld für dich?", "sub": ["Sehr?", "Wofür?", "Sparen?", "Teilen?", "Sicherheit?", "Freiheit?", "Stress?", "Genug?"] },
+    { "q": "Was machst du am Handy am meisten?", "sub": ["Social Media?", "Videos?", "Nachrichten?", "Wie lange?", "Nützlich?", "Ablenkung?", "Abends?", "Möchtest du ändern?"] },
+    { "q": "Welche Musik hörst du am liebsten?", "sub": ["Welche Art?", "Alleine oder mit Freunden?", "Beim Arbeiten?", "Warum diese Musik?", "Lieblingskünstler?", "Seit wann?", "Laut oder leise?", "Jeden Tag?"] },
+    { "q": "Spielst du ein Instrument?", "sub": ["Welches?", "Seit wann?", "Selbst gelernt?", "Wie oft?", "Schwer?", "Alleine oder mit anderen?", "Möchtest du besser werden?", "Warum dieses Instrument?"] },
+    { "q": "Was machst du, wenn du Stress hast?", "sub": ["Hilft es?", "Wie oft?", "Alleine?", "Gesund oder ungesund?", "Kurz oder lange?", "Schon lange so?", "Alternative?", "Warum das?"] },
+    { "q": "Welche App benutzt du jeden Tag?", "sub": ["Warum?", "Wie lange täglich?", "Ohne sie möglich?", "Seit wann?", "Privat oder Arbeit?", "Nützlich?", "Zeitfresser?", "Lieblingsfunktion?"] },
+    { "q": "Was ist dein Lieblingsfilm?", "sub": ["Genre?", "Wann zuletzt gesehen?", "Mit wem?", "Warum dieser Film?", "Alt oder neu?", "Mehrmals gesehen?", "Emotionen?", "Empfehlung?"] },
+    { "q": "Treibst du Sport?", "sub": ["Welche Sportart?", "Wie oft?", "Alleine oder im Team?", "Seit wann?", "Drinnen oder draußen?", "Warum?", "Gesund?", "Ziel?"] },
+    { "q": "Was war dein größter Erfolg?", "sub": ["Wann?", "Wie hast du dich gefühlt?", "War es schwer?", "Was hast du gelernt?", "Alleine geschafft?", "Beruflich oder privat?", "Warum wichtig?", "Stolz?"] },
+    { "q": "Was war deine größte Herausforderung?", "sub": ["Warum schwierig?", "Wie gelöst?", "Alleine?", "Heute anders?", "Lange gedauert?", "Stressig?", "Was gelernt?", "Wichtig für dich?"] },
+    { "q": "Welche Sprache möchtest du lernen?", "sub": ["Warum?", "Wie lernst du?", "Schwer?", "Schon angefangen?", "Für Arbeit?", "Für Reisen?", "Wie oft übst du?", "Zielniveau?"] },
+    { "q": "Wie sieht dein perfekter tag aus?", "sub": ["Morgen?", "Mittag?", "Abend?", "Mit wem?", "Arbeit oder frei?", "Drinnen oder draußen?", "Realistisch?", "Warum perfekt?"] },
+    { "q": "Was ist dein absolutes Lieblingsessen?", "sub": ["Selbst gekocht?", "Bestes Restaurant?", "Wie oft isst du das?", "Warum genau das?", "Süß oder salzig?", "Gesund oder ungesund?", "Seit wann?", "Mit wem isst du es gern?"] },
+    { "q": "Was machst du am liebsten am Wochenende?", "sub": ["Mit wem?", "Drinnen oder draußen?", "Seit wann?", "Kostet das viel Geld?", "Samstag oder Sonntag?", "Entspannt oder aktiv?", "Alleine möglich?", "Warum genau das?"] },
+    { "q": "Erzähl uns von deinem Traumjob.", "sub": ["Welches Gehalt?", "Warum dieser Beruf?", "Was musst du dafür lernen?", "Wo arbeitest du dann?", "Vollzeit oder Teilzeit?", "Im team?", "Stressig?", "Ab wann realistisch?"] },
+    { "q": "Welches Land möchtest du unbedingt bereisen?", "sub": ["Warum dorthin?", "Mit wem?", "Was willst du dort essen?", "Wie lange bleiben?", "Stadt oder Natur?", "Teuer?", "Alleine möglich?", "Wann?"] },
+    { "q": "Was war dein schönster Urlaub bisher?", "sub": ["Wann war das?", "Was war das Highlight?", "War es teuer?", "Würdest du nochmal hin?", "Mit wem?", "Wie lange?", "Entspannt oder aktiv?", "Warum so besonders?"] },
+    { "q": "Hast du ein besonderes Talent?", "sub": ["Wie hast du es gemerkt?", "Übst du viel?", "Kannst du es uns zeigen?", "Haben andere das auch?", "Seit wann?", "Nützlich?", "Beruflich?", "Möchtest du es verbessern?"] },
+    { "q": "Was ist deine früheste Kindheitserinnerung?", "sub": ["Wie alt warst du?", "Wer war dabei?", "War es ein glücklicher Moment?", "Wo war das?", "Klar oder verschwommen?", "Oft daran gedacht?", "Warum geblieben?", "Gefühl heute?"] },
+    { "q": "Welches Buch hat dich beeindruckt?", "sub": ["Worum geht es?", "Wem würdest du es schenken?", "Gibt es einen Film dazu?", "Warum dieses?", "Leicht zu lesen?", "Alt oder neu?", "Nochmals lesen?", "Was gelernt?"] },
+    { "q": "Bist du ein Morgenmensch oder eine Nachteule?", "sub": ["Warum?", "Wann stehst du auf?", "Was machst du nachts?", "Wann bist du produktiv?", "Schon immer so?", "Arbeit angepasst?", "Problematisch?", "Möchtest du es ändern?"] },
+    { "q": "Was ist dein wichtigstes Ziel für dieses Jahr?", "sub": ["Wie planst du das?", "Wer hilft dir?", "Was passiert, wenn du es schaffst?", "Ist es schwer?", "Warum dieses Ziel?", "Zeitplan?", "Risiken?", "Motivation?"] }
 ]
 
+
+// --- STATE ---
 let gameId, myName, players = [], currentTurnIndex = 0;
 let myPeer, localStream, isMuted = false;
 
 // --- MULTIPLAYER LOGIC ---
 function createRoom() {
     myName = document.getElementById("userName").value.trim();
-    if(!myName) return alert("Name!");
+    if(!myName) return alert("Gib deinen Namen ein!");
     gameId = Math.floor(1000 + Math.random() * 9000).toString();
     database.ref('rooms/' + gameId).set({
         players: [myName], currentTurnIndex: 0,
@@ -192,7 +194,7 @@ function joinRoom() {
             let p = s.val().players || [];
             if(!p.includes(myName)) p.push(myName);
             ref.update({ players: p }).then(showGame);
-        }
+        } else alert("Raum nicht gefunden!");
     });
 }
 
@@ -224,7 +226,7 @@ function setupAudio(roomCode) {
                 }
             });
         });
-    }).catch(() => alert("Microphone access denied."));
+    }).catch(() => alert("Zugriff auf Mikrofon verweigert."));
 }
 
 function playStream(stream) {
@@ -263,6 +265,12 @@ function listenToRoom() {
             document.getElementById("votingSection").classList.remove("hidden");
             document.getElementById("answeringSection").classList.add("hidden");
             renderVotingGrid(data.currentCard.sub || [], data.votedSubs || {});
+        }
+
+        // Donner la priorité audio au joueur actif
+        if(localStream) {
+            localStream.getAudioTracks()[0].enabled = isMyTurn;
+            document.getElementById("muteBtn").innerText = isMyTurn ? "🎤 Audio: AN" : "🔇 Audio: AUS";
         }
     });
 }
