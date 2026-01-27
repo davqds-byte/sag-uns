@@ -3,81 +3,79 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sag uns! - Multiplayer Edition</title>
+  <title>Sag uns! - Audio Multiplayer</title>
   
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+  <script src="https://meet.jit.si/external_api.js"></script>
 
   <style>
-    :root { --primary: #6c5ce7; --accent: #00b894; --bg: #f8f9fd; --danger: #ff7675; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #2d3436; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-    
+    :root { --primary: #6c5ce7; --accent: #00b894; --bg: #f8f9fd; --danger: #ff7675; --warning: #fdcb6e; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #2d3436; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
     .container { background: white; border-radius: 24px; padding: 25px; max-width: 500px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.08); box-sizing: border-box; }
     .hidden { display: none !important; }
 
-    /* Login & Setup */
-    h1 { color: var(--primary); margin-bottom: 10px; }
+    /* UI Elements */
     input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #edf2f7; border-radius: 12px; font-size: 1rem; box-sizing: border-box; text-align: center; }
     button { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.3s; margin: 5px 0; }
     .btn-primary { background: var(--primary); color: white; }
     .btn-accent { background: var(--accent); color: white; }
-    .btn-grey { background: #636e72; color: white; }
+    .btn-audio { background: var(--warning); color: #2d3436; display: flex; align-items: center; justify-content: center; gap: 10px; }
 
     /* Game UI */
-    .room-header { font-size: 0.8rem; color: #b2bec3; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-    .turn-status { background: #f0f3ff; color: var(--primary); padding: 12px; border-radius: 10px; font-weight: bold; margin-bottom: 15px; }
-    
-    .card { border: 3px solid var(--primary); border-radius: 20px; padding: 30px; margin: 15px 0; font-size: 1.4rem; font-weight: 800; line-height: 1.3; background: #fff; box-shadow: inset 0 0 15px rgba(108, 92, 231, 0.05); }
+    .room-info { font-size: 0.8rem; color: #b2bec3; margin-bottom: 10px; text-align: center; }
+    .turn-status { background: #f0f3ff; color: var(--primary); padding: 12px; border-radius: 10px; font-weight: bold; margin-bottom: 15px; text-align: center; }
+    .card { border: 3px solid var(--primary); border-radius: 20px; padding: 30px; margin: 15px 0; font-size: 1.4rem; font-weight: 800; background: #fff; text-align: center; }
 
-    /* Questions Grid (Voters) */
-    .sub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; list-style: none; padding: 0; margin: 15px 0; }
-    .sub-btn { background: #fff; border: 2px solid #eee; padding: 12px; border-radius: 12px; font-size: 0.85rem; cursor: pointer; transition: 0.2s; font-weight: 500; }
+    /* Voting & Answering */
+    .sub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; list-style: none; padding: 0; }
+    .sub-btn { background: #fff; border: 2px solid #eee; padding: 12px; border-radius: 12px; font-size: 0.85rem; cursor: pointer; text-align: center; }
     .sub-btn.voted { background: var(--primary); color: white; border-color: var(--primary); }
-
-    /* Answering List (Active Player) */
-    .voted-list { margin-top: 20px; text-align: left; }
-    .voted-item { background: #fff; border: 2px solid #eee; padding: 15px; margin: 10px 0; border-radius: 15px; cursor: pointer; position: relative; transition: 0.3s; }
-    .voted-item.active-reply { border-color: var(--accent); background: #e8fcf5; transform: scale(1.02); box-shadow: 0 5px 15px rgba(0,184,148,0.1); }
-    .author-tag { font-size: 0.7rem; color: #a29bfe; font-weight: bold; display: block; margin-bottom: 4px; text-transform: uppercase; }
-
-    .highlight-msg { color: var(--danger); font-weight: bold; font-size: 0.9rem; padding: 10px; animation: pulse 1s infinite; }
+    .voted-item { background: #fff; border: 2px solid #eee; padding: 15px; margin: 10px 0; border-radius: 15px; cursor: pointer; text-align: left; }
+    .voted-item.active-reply { border-color: var(--accent); background: #e8fcf5; transform: scale(1.02); }
+    .author-tag { font-size: 0.7rem; color: var(--primary); font-weight: bold; display: block; }
+    .highlight-msg { color: var(--danger); font-weight: bold; animation: pulse 1s infinite; text-align: center; margin-bottom: 10px; }
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
   </style>
 </head>
 <body>
 
-  <h1>🗨️ Sag uns!</h1>
+  <h1 style="color: var(--primary);">🗨️ Sag uns!</h1>
 
   <div id="setup" class="container">
-    <input type="text" id="userName" placeholder="Dein Name eingeben">
+    <input type="text" id="userName" placeholder="Dein Name">
     <button class="btn-primary" onclick="createRoom()">➕ Raum erstellen</button>
-    <div style="margin: 15px; color: #b2bec3;">ODER</div>
-    <input type="number" id="roomInput" placeholder="4-stelliger Code">
-    <button class="btn-accent" onclick="joinRoom()">🚪 Raum beitreten</button>
+    <div style="text-align:center; margin: 10px; color: #ccc;">--- ODER ---</div>
+    <input type="number" id="roomInput" placeholder="Code eingeben">
+    <button class="btn-accent" onclick="joinRoom()">🚪 Beitreten</button>
   </div>
 
   <div id="game" class="container hidden">
-    <div class="room-header">Raum: <span id="roomCodeText" style="color:var(--primary)">0000</span></div>
-    <div id="turnStatus" class="turn-status">Laden...</div>
+    <div class="room-info">Raum-Code: <b id="roomCodeText">0000</b></div>
+    
+    <button id="muteBtn" class="btn-audio" onclick="toggleAudio()">🎤 Audio: AN</button>
+    <div id="jitsi-container" class="hidden"></div>
 
-    <div class="card" id="questionText">Warten...</div>
+    <div id="turnStatus" class="turn-status">Laden...</div>
+    <div class="card" id="questionText">---</div>
 
     <button id="drawBtn" class="btn-primary hidden" onclick="drawNewCard()">Nächste Karte 🃏</button>
 
     <div id="votingSection" class="hidden">
-      <p style="font-size: 0.9rem; font-weight: bold;">Wähle eine Zusatzfrage:</p>
+      <div id="signalArea"></div>
+      <p style="font-size: 0.8rem;">Wähle eine Frage für den Spieler:</p>
       <div id="subGrid" class="sub-grid"></div>
     </div>
 
     <div id="answeringSection" class="hidden">
-      <p style="font-size: 0.9rem; font-weight: bold;">Fragen an dich:</p>
-      <div id="votedList" class="voted-list"></div>
-      <button class="btn-grey" onclick="nextPlayer()" style="margin-top:20px;">Nächster Spieler ➡️</button>
+      <p style="font-size: 0.8rem;">Antworte auf diese Fragen:</p>
+      <div id="votedList"></div>
+      <button onclick="nextPlayer()" style="background:#636e72; color:white; margin-top:20px;">Nächster Spieler ➡️</button>
     </div>
   </div>
 
 <script>
-// --- CONFIGURATION ---
+// --- CONFIGURATION FIREBASE ---
 const firebaseConfig = {
   apiKey: "AIzaSyB-80dSuUiGSK99flAzyO8cGKIUfgzT8YU",
   authDomain: "sag-uns.firebaseapp.com",
@@ -194,40 +192,31 @@ const cardsDatabase = [
     { q: "Was ist dein wichtigstes Ziel für dieses Jahr?", sub: ["Wie planst du das?", "Wer hilft dir?", "Was passiert, wenn du es schaffst?", "Ist es schwer?", "Warum dieses Ziel?", "Zeitplan?", "Risiken?", "Motivation?"] }
 ]
 
-let gameId = "";
-let myName = "";
-let players = [];
-let currentTurnIndex = 0;
+let gameId = "", myName = "", players = [], currentTurnIndex = 0, jitsiApi = null, isMuted = false;
 
-// --- LOGIQUE SALON ---
-
+// --- FONCTIONS SALON ---
 function createRoom() {
     myName = document.getElementById("userName").value.trim();
     if(!myName) return alert("Name fehlt!");
-
     gameId = Math.floor(1000 + Math.random() * 9000).toString();
     database.ref('rooms/' + gameId).set({
-        host: myName,
-        players: [myName],
-        currentTurnIndex: 0,
+        host: myName, players: [myName], currentTurnIndex: 0,
         currentCard: { q: "Klicke auf 'Nächste Karte'", sub: [] },
-        votedSubs: {}, // { indexQuestion: nomAuteur }
-        activeSubReply: -1
-    }).then(() => showGame());
+        votedSubs: {}, activeSubReply: -1
+    }).then(showGame);
 }
 
 function joinRoom() {
     myName = document.getElementById("userName").value.trim();
     gameId = document.getElementById("roomInput").value.trim();
-    if(!myName || !gameId) return alert("Name/Code fehlt!");
-
+    if(!myName || !gameId) return alert("Fehlende Infos!");
     const ref = database.ref('rooms/' + gameId);
     ref.once('value', (s) => {
         if(s.exists()){
             let p = s.val().players || [];
             if(!p.includes(myName)) p.push(myName);
-            ref.update({ players: p }).then(() => showGame());
-        } else alert("Raum nicht gefunden!");
+            ref.update({ players: p }).then(showGame);
+        } else alert("Code falsch!");
     });
 }
 
@@ -235,20 +224,40 @@ function showGame() {
     document.getElementById("setup").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
     document.getElementById("roomCodeText").innerText = gameId;
+    setupAudio(gameId);
     listenToRoom();
 }
 
+// --- LOGIQUE AUDIO (JITSI) ---
+function setupAudio(roomCode) {
+    const options = {
+        roomName: "SagUns_Audio_" + roomCode,
+        width: 0, height: 0,
+        parentNode: document.querySelector('#jitsi-container'),
+        configOverwrite: { startWithAudioMuted: false, startWithVideoMuted: true, prejoinPageEnabled: false },
+    };
+    jitsiApi = new JitsiMeetExternalAPI("meet.jit.si", options);
+    jitsiApi.executeCommand('displayName', myName);
+}
+
+function toggleAudio() {
+    isMuted = !isMuted;
+    jitsiApi.executeCommand('toggleAudio');
+    const btn = document.getElementById("muteBtn");
+    btn.innerText = isMuted ? "🔇 Audio: AUS" : "🎤 Audio: AN";
+    btn.style.background = isMuted ? "var(--danger)" : "var(--warning)";
+}
+
+// --- LOGIQUE JEU ---
 function listenToRoom() {
     database.ref('rooms/' + gameId).on('value', (snapshot) => {
         const data = snapshot.val();
         if(!data) return;
-
         players = data.players || [];
         currentTurnIndex = data.currentTurnIndex;
         const activePlayer = players[currentTurnIndex];
         const isMyTurn = (activePlayer === myName);
 
-        // UI
         document.getElementById("turnStatus").innerText = isMyTurn ? "🌟 DU bist dran!" : `👤 ${activePlayer} antwortet...`;
         document.getElementById("questionText").innerText = data.currentCard.q;
         document.getElementById("drawBtn").classList.toggle("hidden", !isMyTurn);
@@ -265,37 +274,26 @@ function listenToRoom() {
     });
 }
 
-// --- LOGIQUE JEU ---
-
 function drawNewCard() {
     const card = cardsDatabase[Math.floor(Math.random() * cardsDatabase.length)];
-    database.ref('rooms/' + gameId).update({
-        currentCard: card,
-        votedSubs: {},
-        activeSubReply: -1
-    });
+    database.ref('rooms/' + gameId).update({ currentCard: card, votedSubs: {}, activeSubReply: -1 });
 }
 
 function renderVotingGrid(subs, votedSubs, activeReply) {
     const grid = document.getElementById("subGrid");
-    grid.innerHTML = "";
-    
-    // Alerte si ma question est choisie
+    const signal = document.getElementById("signalArea");
+    grid.innerHTML = ""; signal.innerHTML = "";
+
     if(activeReply !== -1 && votedSubs[activeReply] === myName) {
-        const msg = document.createElement("div");
-        msg.className = "highlight-msg";
-        msg.innerText = "📣 ER ANTWORTET AUF DEINE FRAGE!";
-        grid.appendChild(msg);
+        signal.innerHTML = `<div class="highlight-msg">🔥 ER ANTWORTET AUF DEINE FRAGE!</div>`;
     }
 
     subs.forEach((text, i) => {
-        const isVotedByMe = votedSubs[i] === myName;
         const btn = document.createElement("div");
-        btn.className = "sub-btn" + (isVotedByMe ? " voted" : "");
+        btn.className = "sub-btn" + (votedSubs[i] === myName ? " voted" : "");
         btn.innerText = text;
         btn.onclick = () => {
-            const update = {};
-            update[`votedSubs/${i}`] = myName;
+            const update = {}; update[`votedSubs/${i}`] = myName;
             database.ref('rooms/' + gameId).update(update);
         };
         grid.appendChild(btn);
@@ -305,21 +303,12 @@ function renderVotingGrid(subs, votedSubs, activeReply) {
 function renderAnsweringList(allSubs, votedSubs, activeReply) {
     const list = document.getElementById("votedList");
     list.innerHTML = "";
-    const keys = Object.keys(votedSubs);
-
-    if(keys.length === 0) {
-        list.innerHTML = "<small style='color:#ccc'>Warte auf Fragen deiner Freunde...</small>";
-        return;
-    }
-
-    keys.forEach(k => {
+    Object.keys(votedSubs).forEach(k => {
         const i = parseInt(k);
         const item = document.createElement("div");
         item.className = "voted-item" + (activeReply === i ? " active-reply" : "");
-        item.innerHTML = `<span class="author-tag">Von ${votedSubs[i]}</span> ${allSubs[i]}`;
-        item.onclick = () => {
-            database.ref('rooms/' + gameId).update({ activeSubReply: i });
-        };
+        item.innerHTML = `<span class="author-tag">Frage von ${votedSubs[i]}</span> ${allSubs[i]}`;
+        item.onclick = () => database.ref('rooms/' + gameId).update({ activeSubReply: i });
         list.appendChild(item);
     });
 }
@@ -327,10 +316,8 @@ function renderAnsweringList(allSubs, votedSubs, activeReply) {
 function nextPlayer() {
     const nextIdx = (currentTurnIndex + 1) % players.length;
     database.ref('rooms/' + gameId).update({
-        currentTurnIndex: nextIdx,
-        activeSubReply: -1,
-        votedSubs: {},
-        currentCard: { q: "Nächster Spieler zieht eine Karte...", sub: [] }
+        currentTurnIndex: nextIdx, activeSubReply: -1, votedSubs: {},
+        currentCard: { q: "Warten auf neue Karte...", sub: [] }
     });
 }
 </script>
