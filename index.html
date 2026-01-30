@@ -2,314 +2,1135 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sag uns! - P2P Audio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Sag uns! - Das Kartenspiel</title>
   
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-
   <style>
-    :root { --primary: #6c5ce7; --accent: #00b894; --bg: #f8f9fd; --danger: #ff7675; }
-    body { font-family: sans-serif; background: var(--bg); text-align: center; padding: 20px; }
-    .container { background: white; border-radius: 20px; padding: 25px; max-width: 450px; margin: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-    .hidden { display: none !important; }
-    .card { border: 3px solid var(--primary); border-radius: 15px; padding: 20px; margin: 15px 0; font-size: 1.2rem; font-weight: bold; }
-    button { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; margin: 5px 0; }
-    .sub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; list-style: none; padding: 0; }
-    .sub-btn { border: 2px solid #eee; padding: 10px; border-radius: 10px; cursor: pointer; }
-    .voted { background: var(--primary); color: white; }
-    .active-reply { border-color: var(--accent); background: #e8fcf5; }
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    
+    :root {
+      --primary: #6c5ce7;
+      --primary-dark: #5f4fd1;
+      --accent: #00b894;
+      --accent-dark: #00a383;
+      --bg-gradient-1: #667eea;
+      --bg-gradient-2: #764ba2;
+      --danger: #ff7675;
+      --card-bg: #ffffff;
+      --text-dark: #2d3436;
+      --text-light: #636e72;
+      --shadow: rgba(0, 0, 0, 0.1);
+      --shadow-hover: rgba(0, 0, 0, 0.15);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      /* Changement: flex-start pour commencer en haut, mieux pour le footer */
+      justify-content: flex-start; 
+      padding: 30px 20px 60px 20px; /* Padding bottom augmenté pour le footer */
+      position: relative;
+      overflow-x: hidden;
+      color: var(--text-dark);
+    }
+    
+    /* Hintergrund-Dekoration */
+    .bg-shape {
+      position: absolute;
+      border-radius: 50%;
+      z-index: 0;
+      filter: blur(60px);
+      opacity: 0.6;
+    }
+    
+    .bg-shape-1 {
+      width: 400px;
+      height: 400px;
+      background: #ff9ff3;
+      top: -100px;
+      left: -100px;
+    }
+    
+    .bg-shape-2 {
+      width: 300px;
+      height: 300px;
+      background: #54a0ff;
+      bottom: -50px;
+      right: -50px;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+      z-index: 1;
+      animation: fadeInDown 0.8s ease;
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      color: white;
+      font-weight: 700;
+      text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      margin-bottom: 5px;
+    }
+    
+    .header p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      font-weight: 400;
+    }
+    
+    .container {
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 30px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+      position: relative;
+      z-index: 1;
+      animation: fadeInUp 0.8s ease;
+      transition: height 0.3s ease;
+      flex-grow: 1; /* Permet au contenu de pousser le footer si besoin */
+      margin-bottom: 20px;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    }
+    
+    .loading-spinner {
+      border: 5px solid #f0f0f0;
+      border-top: 5px solid var(--primary);
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    
+    /* Setup Screen Elements */
+    .input-group {
+      margin-bottom: 20px;
+    }
+    
+    .input-group label {
+      display: block;
+      color: var(--text-dark);
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+    
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+      color: var(--text-dark);
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.1);
+    }
+    
+    button {
+      width: 100%;
+      padding: 16px;
+      border-radius: 12px;
+      border: none;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: 'Poppins', sans-serif;
+      margin-top: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    button:active {
+      transform: scale(0.98);
+    }
+    
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+    
+    .btn-accent {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+    }
+    
+    .btn-accent:hover:not(:disabled) {
+      background: var(--accent-dark);
+      transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+      background: #dfe6e9;
+      color: var(--text-dark);
+    }
+    
+    .btn-secondary:hover {
+      background: #b2bec3;
+    }
+    
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 25px 0;
+      color: var(--text-light);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid #dfe6e9;
+    }
+    
+    .divider span {
+      padding: 0 15px;
+      font-weight: 600;
+    }
+
+    /* Game Screen Elements */
+    .status-bar {
+      background: white;
+      padding: 10px 20px;
+      border-radius: 50px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border: 1px solid #f0f0f0;
+    }
+    
+    .room-code-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .room-code {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 1px;
+    }
+    
+    .copy-btn {
+      background: none;
+      border: none;
+      padding: 4px;
+      margin: 0;
+      width: auto;
+      color: var(--text-light);
+      cursor: pointer;
+      font-size: 0.9rem;
+      box-shadow: none;
+    }
+    
+    .copy-btn:hover {
+      color: var(--primary);
+      transform: none;
+    }
+    
+    .player-count {
+      background: var(--bg-gradient-1);
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .turn-info {
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-light);
+      margin-bottom: 20px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border: 1px dashed #dfe6e9;
+      transition: all 0.3s ease;
+    }
+    
+    .turn-info.active {
+      color: var(--primary);
+      background: rgba(108, 92, 231, 0.1);
+      border-color: var(--primary);
+      animation: pulse 2s infinite;
+    }
+    
+    .question-card {
+      background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%);
+      color: white;
+      border-radius: 20px;
+      padding: 30px 20px;
+      margin: 20px 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(108, 92, 231, 0.35);
+      line-height: 1.5;
+      min-height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+    
+    .question-card.new-card {
+      animation: cardEntrance 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .question-card::before {
+      content: '❝';
+      position: absolute;
+      font-size: 6rem;
+      opacity: 0.15;
+      top: -10px;
+      left: 10px;
+      font-family: serif;
+    }
+    
+    .neue-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #ff7675;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(255, 118, 117, 0.4);
+      z-index: 10;
+    }
+    
+    /* Voting Grid */
+    .sub-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+    
+    .sub-btn {
+      background: white;
+      border: 2px solid #e0e0e0;
+      padding: 15px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 500;
+      color: var(--text-dark);
+      text-align: center;
+      font-size: 0.9rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+      user-select: none;
+    }
+    
+    .sub-btn:hover:not(.voted) {
+      border-color: var(--primary);
+      background: #fdfdfd;
+    }
+    
+    .sub-btn.voted {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 4px 10px rgba(108, 92, 231, 0.3);
+    }
+    
+    /* Answering List */
+    .voted-list {
+      margin-bottom: 20px;
+      max-height: 250px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+    
+    .voted-item {
+      background: white;
+      border: 2px solid #f0f0f0;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    
+    .voted-item:hover {
+      border-color: #dcdcdc;
+      transform: translateX(3px);
+    }
+    
+    .voted-item.selected {
+      background: #e3f9f5; /* Very light green */
+      border-color: var(--accent);
+      box-shadow: 0 4px 12px rgba(0, 184, 148, 0.15);
+    }
+    
+    .voted-item.selected::after {
+      content: '💬';
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.2rem;
+    }
+    
+    .voted-question {
+      font-weight: 600;
+      color: var(--text-dark);
+      font-size: 1rem;
+      margin-bottom: 5px;
+      padding-right: 20px;
+    }
+    
+    .voted-by {
+      color: var(--text-light);
+      font-size: 0.8rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    /* Utility & Messages */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(50px);
+      background: #2d3436;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      white-space: nowrap;
+    }
+    
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    
+    .error-box {
+      background: #ffeaea;
+      color: #d63031;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+      text-align: center;
+      border: 1px solid #fab1a0;
+      display: none;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px 10px;
+      color: var(--text-light);
+      font-size: 0.95rem;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border: 1px dashed #dfe6e9;
+    }
+
+    /* FOOTER STYLE */
+    .footer {
+      margin-top: auto;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.7rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      z-index: 10;
+      padding-bottom: 10px;
+    }
+    
+    /* Animations */
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(108, 92, 231, 0.4); }
+      70% { box-shadow: 0 0 0 6px rgba(108, 92, 231, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(108, 92, 231, 0); }
+    }
+    
+    @keyframes cardEntrance {
+      0% { opacity: 0; transform: scale(0.9) translateY(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #dfe6e9; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #b2bec3; }
+    
+    /* Mobile Optimizations */
+    @media (max-width: 480px) {
+      .header h1 { font-size: 2rem; }
+      .container { padding: 20px; }
+      .question-card { font-size: 1.15rem; padding: 25px 15px; }
+      .sub-grid { grid-template-columns: 1fr; }
+      .footer { font-size: 0.65rem; }
+    }
   </style>
 </head>
 <body>
 
-  <h1>🗨️ Sag uns! P2P</h1>
+  <!-- Background Shapes -->
+  <div class="bg-shape bg-shape-1"></div>
+  <div class="bg-shape bg-shape-2"></div>
 
-  <div id="setup" class="container">
-    <input type="text" id="userName" placeholder="Dein Name" style="width:90%; padding:10px; margin-bottom:10px;">
-    <button onclick="createRoom()" style="background:var(--primary); color:white;">Raum erstellen</button>
-    <input type="number" id="roomInput" placeholder="Code">
-    <button onclick="joinRoom()" style="background:var(--accent); color:white;">Beitreten</button>
+  <!-- Loading Screen -->
+  <div id="loading" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div style="font-weight: 500; color: var(--text-dark);">Lade Spiel...</div>
   </div>
 
-  <div id="game" class="container hidden">
-    <button id="muteBtn" onclick="toggleAudio()" style="background:#fdcb6e;">🎤 Audio: AN</button>
-    <div id="status" style="font-size:0.8rem; color:gray; margin:10px;">Raum: <span id="roomCodeText"></span></div>
-    <div id="turnInfo" style="font-weight:bold; color:var(--primary);"></div>
-    <div class="card" id="questionText">---</div>
-    <button id="drawBtn" class="hidden" onclick="drawNewCard()" style="background:var(--primary); color:white;">Nächste Karte 🃏</button>
-    
-    <div id="votingSection" class="hidden">
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">Nachricht</div>
+
+  <div id="app" class="hidden">
+    <header class="header">
+      <h1>🗨️ Sag uns!</h1>
+      <p>Das Kartenspiel für eure Runde</p>
+    </header>
+
+    <!-- SETUP SCREEN -->
+    <div id="setup" class="container">
+      <div id="errorBox" class="error-box"></div>
+      
+      <div class="input-group">
+        <label for="userName">👤 Dein Name</label>
+        <input type="text" id="userName" placeholder="z.B. Lena" maxlength="12" autocomplete="off" />
+      </div>
+      
+      <button id="createBtn" onclick="createRoom()" class="btn-primary">
+        ✨ Raum erstellen
+      </button>
+      
+      <div class="divider">
+        <span>oder</span>
+      </div>
+      
+      <div class="input-group">
+        <label for="roomInput">🔑 Raum-Code</label>
+        <input type="number" id="roomInput" placeholder="1234" maxlength="4" />
+      </div>
+      
+      <button id="joinBtn" onclick="joinRoom()" class="btn-accent">
+        🚀 Beitreten
+      </button>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="game" class="container hidden">
+      <div class="status-bar">
+        <div class="room-code-container">
+          <span style="font-size: 0.8rem; color: #b2bec3; margin-right: 5px;">CODE</span>
+          <span class="room-code" id="roomCodeDisplay">----</span>
+          <button class="copy-btn" onclick="copyRoomCode()" title="Code kopieren">📋</button>
+        </div>
+        <div class="player-count">
+          <span>👥</span> <span id="playerCount">1</span>
+        </div>
+      </div>
+      
+      <div id="turnInfo" class="turn-info">Warte auf Start...</div>
+      
+      <!-- Main Question Area -->
+      <div id="questionCard" class="question-card">
+        <span id="questionText">Bereit!</span>
+        <div id="neueBadge" class="neue-badge hidden">NEU</div>
+      </div>
+      
+      <!-- Active Player Controls -->
+      <div id="activeControls" class="hidden">
+        <button id="drawBtn" class="btn-primary" onclick="drawNewCard()">
+          🎴 Nächste Karte ziehen
+        </button>
+        
+        <div id="answeringSection" class="hidden">
+          <div style="text-align: center; margin: 15px 0 10px; font-size: 0.9rem; color: var(--text-light);">
+            Wähle eine Frage aus, um zu antworten
+          </div>
+          <div id="votedList" class="voted-list"></div>
+          
+          <button id="nextBtn" onclick="nextPlayer()" class="btn-secondary hidden">
+            ➡️ Nächster Spieler
+          </button>
+        </div>
+      </div>
+
+      <!-- Other Players Controls -->
+      <div id="votingControls" class="hidden">
+        <div style="text-align: center; margin: 15px 0 10px; font-size: 0.9rem; color: var(--text-light);">
+          📝 Stimme für eine Folgefrage ab
+        </div>
         <div id="subGrid" class="sub-grid"></div>
-    </div>
-
-    <div id="answeringSection" class="hidden">
-        <div id="votedList"></div>
-        <button onclick="nextPlayer()" style="background:#636e72; color:white;">Nächster Spieler ➡️</button>
+        <div class="empty-state">
+          Warte, bis der Spieler eine Karte zieht...
+        </div>
+      </div>
     </div>
   </div>
 
-<script>
-// --- CONFIG FIREBASE ---
-const firebaseConfig = {
-  apiKey: "AIzaSyB-80dSuUiGSK99flAzyO8cGKIUfgzT8YU",
-  authDomain: "sag-uns.firebaseapp.com",
-  databaseURL: "https://sag-uns-default-rtdb.firebaseio.com",
-  projectId: "sag-uns",
-  storageBucket: "sag-uns.firebasestorage.app",
-  messagingSenderId: "336076042001",
-  appId: "1:336076042001:web:3f14385ba00975b66a26b0"
-};
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
+  <!-- FOOTER -->
+  <footer class="footer">
+    credit : desingned by AGOGO Marzouk powered by AI
+  </footer>
 
-// --- DATA ---
-const cardsDatabase = [
-    { "q": "Was ist dein Lieblingsessen aus deiner Heimat?", "sub": ["Warum?", "Wann isst du es?", "Wer kocht es?", "Tradition?", "Zu besonderen Anlässen?", "Schwer zu kochen?", "Gesund?", "Vermisst du es?"] },
-    { "q": "Was bedeutet Arbeit für dich?", "sub": ["Pflicht?", "Erfüllung?", "Geld?", "Warum?", "Identität?", "Stabilität?", "Stress?", "Zukunft?"] },
-    { "q": "Was war dein letzter Erfolg?", "sub": ["Klein oder groß?", "Wann?", "Warum wichtig?", "Gefühl?", "Alleine oder im Team?", "Erwartet?", "Folgen?", "Motivierend?"] },
-    { "q": "Was brauchst du zum Glücklichsein?", "sub": ["Menschen?", "Zeit?", "Gesundheit?", "Warum?", "Materiell?", "Stabil?", "Kurzfristig?", "Langfristig?"] },
-    { "q": "Was war dein letzter Misserfolg?", "sub": ["Warum?", "Was gelernt?", "Heute besser?", "Wichtig?", "Emotional?", "Konsequenzen?", "Akzeptiert?", "Motivation danach?"] },
-    { "q": "Was bedeutet Zuhause für dich?", "sub": ["Ort?", "Menschen?", "Gefühl?", "Warum?", "Stabil?", "Kindheit?", "Heute anders?", "Zukunft?"] },
-    { "q": "Was schätzt du an anderen Menschen?", "sub": ["Ehrlichkeit?", "Respekt?", "Humor?", "Warum?", "Selten?", "Wichtig?", "Im Alltag?", "Beziehungen?"] },
-    { "q": "Was machst du, wenn du traurig bist?", "sub": ["Alleine?", "Mit jemandem?", "Was hilft?", "Warum?", "Musik?", "Zeit?", "Sprichst du darüber?", "Besser danach?"] },
-    { "q": "Was möchtest du einmal besitzen?", "sub": ["Warum?", "Wann?", "Nötig?", "Traum?", "Realistisch?", "Teuer?", "Symbolisch?", "Motivierend?"] },
-    { "q": "Was ist dein Lieblingswort?", "sub": ["Warum?", "In welcher Sprache?", "Bedeutung?", "Oft benutzt?", "Gefühl?", "Kurz oder lang?", "Seit wann?", "Persönlich?"] },
-    { "q": "Was bedeutet Erfolg im Leben?", "sub": ["Persönlich?", "Gesellschaft?", "Geld?", "Warum?", "Zeit?", "Gesundheit?", "Balance?", "Veränderlich?"] },
-    { "q": "Was möchtest du verbessern?", "sub": ["In dir?", "Im Alltag?", "Warum?", "Wie?", "Seit wann?", "Realistisch?", "Schritt für Schritt?", "Ziel?"] },
-    { "q": "Was war dein größter Fehler?", "sub": ["Warum?", "Was gelernt?", "Heute anders?", "Wichtig?", "Emotional?", "Konsequenzen?", "Akzeptiert?", "Weitergeholfen?"] },
-    { "q": "Was motiviert dich morgens?", "sub": ["Ziel?", "Pflicht?", "Menschen?", "Warum?", "Routine?", "Energie?", "Stimmung?", "Konstant?"] },
-    { "q": "Was bedeutet Respekt für dich?", "sub": ["Warum?", "Erfahrungen?", "Wichtig?", "Im Alltag?", "Gegenseitig?", "Grenzen?", "Kultur?", "Vorleben?"] },
-    { "q": "Was würdest du gerne ändern?", "sub": ["In deinem Leben?", "Warum?", "Möglich?", "Wann?", "Erster Schritt?", "Hilfe nötig?", "Risiken?", "Ziel?"] },
-    { "q": "Was ist dein Lieblingsmoment am Tag?", "sub": ["Warum?", "Wann?", "Mit wem?", "Gefühl?", "Ruhig?", "Kurz?", "Bewusst?", "Jeden Tag?"] },
-    { "q": "Was macht dich stolz?", "sub": ["Warum?", "Wann?", "Erfahrung?", "Wichtig?", "Alleine?", "Anerkennung?", "Langfristig?", "Motivierend?"] },
-    { "q": "Was willst du in fünf Jahren erreicht haben?", "sub": ["Warum?", "Wie?", "Mit wem?", "Realistisch?", "Beruflich?", "Privat?", "Finanziell?", "Zufriedenheit?"] },
-    { "q": "Was möchtest du noch erleben?", "sub": ["Warum?", "Wann?", "Mit wem?", "Traum?", "Reisen?", "Herausforderung?", "Emotional?", "Einmalig?"] },
-    { "q": "Was isst du gar nicht gern?", "sub": ["Warum?", "Schon probiert?", "Immer?", "Vermeidbar?", "Kindheit?", "Geschmack?", "Geruch?", "Tolerierbar?"] },
-    { "q": "Wie wichtig ist dir Pünktlichkeit?", "sub": ["Warum?", "Im Alltag?", "Bei Arbeit?", "Erfahrungen?", "Konsequenzen?", "Kultur?", "Stress?", "Flexibel?"] },
-    { "q": "Was war dein größter Traum als Kind?", "sub": ["Warum?", "Erfüllt?", "Noch möglich?", "Geändert?", "Einfluss?", "Realistisch?", "Heute wichtig?", "Gefühl damals?"] },
-    { "q": "Was bedeutet Erfolg für junge Menschen?", "sub": ["Heute?", "Früher?", "Unterschiede?", "Warum?", "Druck?", "Soziale Medien?", "Vergleich?", "Gesund?"] },
-    { "q": "Was lernst du gerade?", "sub": ["Warum?", "Wo?", "Schwierig?", "Nützlich?", "Motivation?", "Zeitaufwand?", "Ziel?", "Fortschritt?"] },
-    { "q": "Was würdest du deinem jüngeren Ich sagen?", "sub": ["Warum?", "Erfahrung?", "Fehler?", "Rat?", "Trost?", "Warnung?", "Motivation?", "Ehrlich?"] },
-    { "q": "Was ist dein Lieblingsfeiertag?", "sub": ["Warum?", "Mit wem?", "Tradition?", "Essen?", "Stimmung?", "Vorbereitung?", "Erinnerungen?", "Jedes Jahr?"] },
-    { "q": "Was macht einen guten Tag aus?", "sub": ["Morgen?", "Arbeit?", "Abend?", "Warum?", "Menschen?", "Gefühl?", "Erfolg?", "Ruhe?"] },
-    { "q": "Wie gehst du mit Problemen um?", "sub": ["Alleine?", "Mit Hilfe?", "Sofort?", "Warum?", "Strategie?", "Erfahrung?", "Erfolg?", "Veränderung?"] },
-    { "q": "Was möchtest du dieses Jahr lernen?", "sub": ["Warum?", "Wie?", "Wann?", "Ziel?", "Zeit?", "Motivation?", "Schwierigkeiten?", "Erfolgskriterium?"] },
-    { "q": "Was machst du in deiner Freizeit?", "sub": ["Regelmäßig?", "Alleine?", "Mit anderen?", "Warum?", "Drinnen?", "Draußen?", "Zeitaufwand?", "Lieblingsaktivität?"] },
-    { "q": "Was würdest du nie vergessen?", "sub": ["Erlebnis?", "Person?", "Moment?", "Warum?", "Emotional?", "Lange her?", "Heute wichtig?", "Einfluss?"] },
-    { "q": "Was stresst dich im Alltag?", "sub": ["Arbeit?", "Menschen?", "Zeit?", "Wie reagierst du?", "Kurzfristig?", "Langfristig?", "Kontrollierbar?", "Lösung?"] },
-    { "q": "Wie wichtig ist Bildung für dich?", "sub": ["Warum?", "Eigene Erfahrung?", "Zukunft?", "Ziel?", "Formell?", "Informell?", "Motivation?", "Zugang?"] },
-    { "q": "Was machst du, wenn du müde bist?", "sub": ["Schlafen?", "Kaffee?", "Pause?", "Warum?", "Hilft?", "Kurz oder lang?", "Alltag?", "Gesund?"] },
-    { "q": "Was bedeutet Freundschaft für dich?", "sub": ["Vertrauen?", "Zeit?", "Hilfe?", "Warum?", "Grenzen?", "Langfristig?", "Pflege?", "Veränderung?"] },
-    { "q": "Was ist dein Lieblingsfach?", "sub": ["Warum?", "Seit wann?", "Nützlich?", "Schwierig?", "Lehrer?", "Praxis?", "Motivation?", "Erfolg?"] },
-    { "q": "Was war dein schönster Moment?", "sub": ["Wann?", "Mit wem?", "Warum?", "Unvergesslich?", "Gefühl?", "Kurz oder lang?", "Ort?", "Wiederholen?"] },
-    { "q": "Was machst du bei Langeweile?", "sub": ["Handy?", "Schlafen?", "Spazieren?", "Warum?", "Alleine?", "Zeit?", "Produktiv?", "Gewohnheit?"] },
-    { "q": "Was erwartest du von der Zukunft?", "sub": ["Hoffnungen?", "Ängste?", "Ziele?", "Warum?", "Kurzfristig?", "Langfristig?", "Realistisch?", "Optimistisch?"] },
-    { "q": "Was ist dein Lieblingskleidungsstück?", "sub": ["Warum?", "Wann trägst du es?", "Neu oder alt?", "Bequem?", "Alltag?", "Besonders?", "Teuer?", "Gefühl dabei?"] },
-    { "q": "Wie planst du deinen Tag?", "sub": ["Mit Liste?", "Im Kopf?", "Spontan?", "Warum?", "Morgens?", "Abends?", "Flexibel?", "Erfolgreich?"] },
-    { "q": "Was war dein letzter Fehler?", "sub": ["Was passiert?", "Was gelernt?", "Wiederholen?", "Warum?", "Klein oder groß?", "Alleine?", "Konsequenzen?", "Verbessert?"] },
-    { "q": "Was bedeutet Erfolg in der Arbeit?", "sub": ["Anerkennung?", "Geld?", "Spaß?", "Warum?", "Team?", "Ergebnisse?", "Stabilität?", "Zufriedenheit?"] },
-    { "q": "Was motiviert dich?", "sub": ["Ziele?", "Menschen?", "Druck?", "Warum?", "Kurzfristig?", "Langfristig?", "Stark?", "Konstant?"] },
-    { "q": "Wie verbringst du Zeit alleine?", "sub": ["Gerne?", "Was machst du?", "Warum?", "Oft?", "Entspannt?", "Produktiv?", "Bewusst?", "Notwendig?"] },
-    { "q": "Was war dein letzter Urlaub?", "sub": ["Wo?", "Wie lange?", "Mit wem?", "Schön?", "Entspannt?", "Aktiv?", "Kosten?", "Nochmal?"] },
-    { "q": "Was würdest du neu lernen wollen?", "sub": ["Warum?", "Wann?", "Wie?", "Realistisch?", "Zeit?", "Kosten?", "Motivation?", "Ziel?"] },
-    { "q": "Was ist dir im Leben am wichtigsten?", "sub": ["Warum?", "Seit wann?", "Hat sich geändert?", "Priorität?", "Konflikte?", "Opfer?", "Stabil?", "Zukunft?"] },
-    { "q": "Wie wichtig ist dir Ehrlichkeit?", "sub": ["Warum?", "Immer?", "Schwierig?", "Erfahrungen?", "Grenzen?", "Konsequenzen?", "Im Alltag?", "In Beziehungen?"] },
-    { "q": "Wie wichtig ist Familie für dich?", "sub": ["Warum?", "Kontakt oft?", "Unterstützung?", "Zusammenhalt?", "Nähe?", "Konflikte?", "Gemeinsame Zeit?", "Zukunft?"] },
-    { "q": "Was isst du zum Frühstück?", "sub": ["Immer gleich?", "Gesund?", "Schnell?", "Warum?", "Alleine?", "Unter der Woche?", "Am Wochenende?", "Ohne Frühstück möglich?"] },
-    { "q": "Was war dein letzter Kauf?", "sub": ["Was?", "Warum?", "Nötig?", "Teuer?", "Geplant?", "Zufrieden?", "Wieder kaufen?", "Lehre daraus?"] },
-    { "q": "Was würdest du sofort ändern?", "sub": ["In deinem Leben?", "In der Welt?", "Warum?", "Realistisch?", "Kurzfristig?", "Langfristig?", "Alleine?", "Erste Schritte?"] },
-    { "q": "Wie lernst du am besten?", "sub": ["Alleine?", "Mit Videos?", "Mit Lehrer?", "Warum?", "Zeit?", "Ort?", "Wiederholung?", "Erfolg?"] },
-    { "q": "Welche Arbeit machst du gerade?", "sub": ["Seit wann?", "Gefällt sie dir?", "Warum?", "Zukunft?", "Stress?", "Arbeitszeit?", "Team?", "Motivation?"] },
-    { "q": "Was bedeutet Freiheit für dich?", "sub": ["Zeit?", "Geld?", "Ort?", "Warum?", "Grenzen?", "Verantwortung?", "Erfahrung?", "Wichtig?"] },
-    { "q": "Welche Tradition magst du?", "sub": ["Familie?", "Land?", "Feiertag?", "Warum?", "Seit wann?", "Ritual?", "Essen?", "Gefühl?"] },
-    { "q": "Wie wichtig ist Gesundheit für dich?", "sub": ["Sport?", "Essen?", "Vorsorge?", "Warum?", "Körper?", "Geist?", "Alltag?", "Zukunft?"] },
-    { "q": "Was machst du vor dem Schlafen?", "sub": ["Handy?", "Lesen?", "Musik?", "Immer gleich?", "Dauer?", "Ritual?", "Entspannend?", "Schlafqualität?"] },
-    { "q": "Hast du Haustiere?", "sub": ["Welche?", "Warum?", "Pflege?", "Seit wann?", "Kosten?", "Zeitaufwand?", "Alleine?", "Möchtest du mehr?"] },
-    { "q": "Was ist dein Lieblingsort?", "sub": ["Wo?", "Warum?", "Alleine oder mit anderen?", "Oft dort?", "Drinnen oder draußen?", "Ruhig oder lebendig?", "Erinnerungen?", "Gefühl dort?"] },
-    { "q": "Wie stellst du dir dein Leben in 10 Jahren vor?", "sub": ["Job?", "Familie?", "Wohnort?", "Zufrieden?", "Finanziell?", "Gesundheit?", "Realistisch?", "Warum so?"] },
-    { "q": "Was ist dein Lieblingsgetränk?", "sub": ["Heiß oder kalt?", "Wann trinkst du es?", "Zu welchem Essen?", "Warum?", "Täglich?", "Gesund?", "Zucker?", "Alternative?"] },
-    { "q": "Was hast du zuletzt gelernt?", "sub": ["Wo?", "Warum?", "Nützlich?", "Schwierig?", "Theorie oder Praxis?", "Kurz oder lang?", "Alleine?", "Nochmal lernen?"] },
-    { "q": "Was machst du bei schlechtem Wetter?", "sub": ["Drinnen?", "Filme?", "Lesen?", "Schlafen?", "Produktiv?", "Entspannt?", "Alleine?", "Warum?"] },
-    { "q": "Welche Eigenschaft magst du an dir?", "sub": ["Warum?", "Schon lange?", "Andere sehen das?", "Hilft im Alltag?", "In der Arbeit?", "Privat?", "Stabil?", "Möchtest du sie stärken?"] },
-    { "q": "Welche Eigenschaft möchtest du ändern?", "sub": ["Warum?", "Wie?", "Schon versucht?", "Schwierig?", "Seit wann?", "Alleine möglich?", "Hilfe?", "Realistisch?"] },
-    { "q": "Was macht dich glücklich?", "sub": ["Kleine Dinge?", "Menschen?", "Erfolge?", "Warum?", "Kurz oder langfristig?", "Täglich?", "Abhängig?", "Bewusst?"] },
-    { "q": "Was macht dich wütend?", "sub": ["Im Alltag?", "Selten oder oft?", "Wie reagierst du?", "Warum?", "Menschen?", "Situationen?", "Kontrollierbar?", "Lernbar?"] },
-    { "q": "Was ist dir in Freundschaften wichtig?", "sub": ["Ehrlichkeit?", "Zeit?", "Vertrauen?", "Warum?", "Unterstützung?", "Respekt?", "Humor?", "Langfristig?"] },
-    { "q": "Hast du ein Vorbild?", "sub": ["Wer?", "Warum?", "Persönlich oder bekannt?", "Seit wann?", "Was bewunderst du?", "Ähnlich wie du?", "Motivierend?", "Realistisch?"] },
-    { "q": "Was machst du morgens zuerst?", "sub": ["Handy?", "Frühstück?", "Sport?", "Warum?", "Immer gleich?", "Unter der Woche?", "Am Wochenende?", "Hilfreich?"] },
-    { "q": "Was kannst du gar nicht leiden?", "sub": ["Warum?", "Seit wann?", "Im Alltag?", "Vermeidbar?", "Menschen oder Dinge?", "Stark oder leicht?", "Reaktion?", "Konsequenzen?"] },
-    { "q": "Welche Jahreszeit magst du am meisten?", "sub": ["Warum?", "Was machst du dann?", "Reisen?", "Essen?", "Temperatur?", "Erinnerungen?", "Stimmung?", "Kleidung?"] },
-    { "q": "Wie verbringst du deine Abende?", "sub": ["Alleine?", "Mit Medien?", "Mit Familie?", "Entspannt oder aktiv?", "Immer gleich?", "Wochentage?", "Zeitpunkt?", "Warum so?"] },
-    { "q": "Was bedeutet Erfolg für dich?", "sub": ["Geld?", "Zufriedenheit?", "Anerkennung?", "Warum?", "Privat oder beruflich?", "Kurzfristig?", "Langfristig?", "Messbar?"] },
-    { "q": "Welche Arbeit würdest du nie machen?", "sub": ["Warum?", "Zu schwer?", "Zu langweilig?", "Zu gefährlich?", "Schon erlebt?", "Geld egal?", "Stressig?", "Grenzen?"] },
-    { "q": "Wie wichtig ist Geld für dich?", "sub": ["Sehr?", "Wofür?", "Sparen?", "Teilen?", "Sicherheit?", "Freiheit?", "Stress?", "Genug?"] },
-    { "q": "Was machst du am Handy am meisten?", "sub": ["Social Media?", "Videos?", "Nachrichten?", "Wie lange?", "Nützlich?", "Ablenkung?", "Abends?", "Möchtest du ändern?"] },
-    { "q": "Welche Musik hörst du am liebsten?", "sub": ["Welche Art?", "Alleine oder mit Freunden?", "Beim Arbeiten?", "Warum diese Musik?", "Lieblingskünstler?", "Seit wann?", "Laut oder leise?", "Jeden Tag?"] },
-    { "q": "Spielst du ein Instrument?", "sub": ["Welches?", "Seit wann?", "Selbst gelernt?", "Wie oft?", "Schwer?", "Alleine oder mit anderen?", "Möchtest du besser werden?", "Warum dieses Instrument?"] },
-    { "q": "Was machst du, wenn du Stress hast?", "sub": ["Hilft es?", "Wie oft?", "Alleine?", "Gesund oder ungesund?", "Kurz oder lange?", "Schon lange so?", "Alternative?", "Warum das?"] },
-    { "q": "Welche App benutzt du jeden Tag?", "sub": ["Warum?", "Wie lange täglich?", "Ohne sie möglich?", "Seit wann?", "Privat oder Arbeit?", "Nützlich?", "Zeitfresser?", "Lieblingsfunktion?"] },
-    { "q": "Was ist dein Lieblingsfilm?", "sub": ["Genre?", "Wann zuletzt gesehen?", "Mit wem?", "Warum dieser Film?", "Alt oder neu?", "Mehrmals gesehen?", "Emotionen?", "Empfehlung?"] },
-    { "q": "Treibst du Sport?", "sub": ["Welche Sportart?", "Wie oft?", "Alleine oder im Team?", "Seit wann?", "Drinnen oder draußen?", "Warum?", "Gesund?", "Ziel?"] },
-    { "q": "Was war dein größter Erfolg?", "sub": ["Wann?", "Wie hast du dich gefühlt?", "War es schwer?", "Was hast du gelernt?", "Alleine geschafft?", "Beruflich oder privat?", "Warum wichtig?", "Stolz?"] },
-    { "q": "Was war deine größte Herausforderung?", "sub": ["Warum schwierig?", "Wie gelöst?", "Alleine?", "Heute anders?", "Lange gedauert?", "Stressig?", "Was gelernt?", "Wichtig für dich?"] },
-    { "q": "Welche Sprache möchtest du lernen?", "sub": ["Warum?", "Wie lernst du?", "Schwer?", "Schon angefangen?", "Für Arbeit?", "Für Reisen?", "Wie oft übst du?", "Zielniveau?"] },
-    { "q": "Wie sieht dein perfekter tag aus?", "sub": ["Morgen?", "Mittag?", "Abend?", "Mit wem?", "Arbeit oder frei?", "Drinnen oder draußen?", "Realistisch?", "Warum perfekt?"] },
-    { "q": "Was ist dein absolutes Lieblingsessen?", "sub": ["Selbst gekocht?", "Bestes Restaurant?", "Wie oft isst du das?", "Warum genau das?", "Süß oder salzig?", "Gesund oder ungesund?", "Seit wann?", "Mit wem isst du es gern?"] },
-    { "q": "Was machst du am liebsten am Wochenende?", "sub": ["Mit wem?", "Drinnen oder draußen?", "Seit wann?", "Kostet das viel Geld?", "Samstag oder Sonntag?", "Entspannt oder aktiv?", "Alleine möglich?", "Warum genau das?"] },
-    { "q": "Erzähl uns von deinem Traumjob.", "sub": ["Welches Gehalt?", "Warum dieser Beruf?", "Was musst du dafür lernen?", "Wo arbeitest du dann?", "Vollzeit oder Teilzeit?", "Im team?", "Stressig?", "Ab wann realistisch?"] },
-    { "q": "Welches Land möchtest du unbedingt bereisen?", "sub": ["Warum dorthin?", "Mit wem?", "Was willst du dort essen?", "Wie lange bleiben?", "Stadt oder Natur?", "Teuer?", "Alleine möglich?", "Wann?"] },
-    { "q": "Was war dein schönster Urlaub bisher?", "sub": ["Wann war das?", "Was war das Highlight?", "War es teuer?", "Würdest du nochmal hin?", "Mit wem?", "Wie lange?", "Entspannt oder aktiv?", "Warum so besonders?"] },
-    { "q": "Hast du ein besonderes Talent?", "sub": ["Wie hast du es gemerkt?", "Übst du viel?", "Kannst du es uns zeigen?", "Haben andere das auch?", "Seit wann?", "Nützlich?", "Beruflich?", "Möchtest du es verbessern?"] },
-    { "q": "Was ist deine früheste Kindheitserinnerung?", "sub": ["Wie alt warst du?", "Wer war dabei?", "War es ein glücklicher Moment?", "Wo war das?", "Klar oder verschwommen?", "Oft daran gedacht?", "Warum geblieben?", "Gefühl heute?"] },
-    { "q": "Welches Buch hat dich beeindruckt?", "sub": ["Worum geht es?", "Wem würdest du es schenken?", "Gibt es einen Film dazu?", "Warum dieses?", "Leicht zu lesen?", "Alt oder neu?", "Nochmals lesen?", "Was gelernt?"] },
-    { "q": "Bist du ein Morgenmensch oder eine Nachteule?", "sub": ["Warum?", "Wann stehst du auf?", "Was machst du nachts?", "Wann bist du produktiv?", "Schon immer so?", "Arbeit angepasst?", "Problematisch?", "Möchtest du es ändern?"] },
-    { "q": "Was ist dein wichtigstes Ziel für dieses Jahr?", "sub": ["Wie planst du das?", "Wer hilft dir?", "Was passiert, wenn du es schaffst?", "Ist es schwer?", "Warum dieses Ziel?", "Zeitplan?", "Risiken?", "Motivation?"] }
-]
+  <!-- Firebase & Game Logic -->
+  <script type="module">
+    // Import Firebase
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getDatabase, ref, set, update, onValue, get, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
+    // --- CONFIGURATION ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyB-80dSuUiGSK99flAzyO8cGKIUfgzT8YU",
+      authDomain: "sag-uns.firebaseapp.com",
+      databaseURL: "https://sag-uns-default-rtdb.firebaseio.com",
+      projectId: "sag-uns",
+      storageBucket: "sag-uns.firebasestorage.app",
+      messagingSenderId: "336076042001",
+      appId: "1:336076042001:web:3f14385ba00975b66a26b0"
+    };
 
-// --- STATE ---
-let gameId, myName, players = [], currentTurnIndex = 0;
-let myPeer, localStream, isMuted = false;
+    // --- STATE & DATA ---
+    let app, database;
+    let gameId, myName, isHost = false;
+    let players = [];
+    let currentTurnIndex = 0;
+    
+    // Local state to track what THIS user has seen
+    let seenQuestions = new Set();
+    let isGenerating = false;
 
-// --- MULTIPLAYER LOGIC ---
-function createRoom() {
-    myName = document.getElementById("userName").value.trim();
-    if(!myName) return alert("Gib deinen Namen ein!");
-    gameId = Math.floor(1000 + Math.random() * 9000).toString();
-    database.ref('rooms/' + gameId).set({
-        players: [myName], currentTurnIndex: 0,
-        currentCard: { q: "Startbereit!", sub: [] },
-        votedSubs: {}, activeSubReply: -1
-    }).then(showGame);
-}
+    const allQuestions = [
+      // Allgemein
+      { "q": "Was ist dir im Leben am wichtigsten und warum hat sich diese Priorität für dich entwickelt?", "sub": ["Seit wann?", "Hat sich geändert?", "Priorität?", "Konflikte?", "Opfer gebracht?", "Bleibt stabil?", "Zukunftspläne?", "Andere Meinung?"] },
+      { "q": "Welche kleinen Momente im Alltag machen dich wirklich glücklich und erfüllt?", "sub": ["Täglich?", "Mit Menschen?", "Alleine auch?", "Warum genau?", "Seit wann?", "Bewusst genießen?", "Mehr davon?", "Teilen mit anderen?"] },
+      { "q": "Was bedeutet echte Freundschaft für dich und was brauchst du von deinen Freunden?", "sub": ["Vertrauen wichtig?", "Zeit zusammen?", "Immer da sein?", "Warum wichtig?", "Grenzen respektieren?", "Langfristig denken?", "Aktiv pflegen?", "Veränderung zulassen?"] },
+      { "q": "Wenn du an deine Kindheit zurückdenkst, was vermisst du am meisten von damals?", "sub": ["Warum vermisst?", "Gefühl oder Ort?", "Menschen dabei?", "Heute anders?", "Zurückholen möglich?", "Oft daran denken?", "Nostalgisch oder traurig?", "Anderen erzählen?"] },
+      { "q": "Was würdest du tun, wenn Geld und Zeit keine Rolle spielen würden in deinem Leben?", "sub": ["Sofort starten?", "Reisen wohin?", "Lernen was?", "Mit wem zusammen?", "Beruflich oder privat?", "Anderen helfen?", "Kreativ sein?", "Langfristig erfüllend?"] },
+      { "q": "Welche Gewohnheit oder Routine gibt dir am meisten Stabilität und Sicherheit im Alltag?", "sub": ["Seit wann?", "Jeden Tag?", "Warum wichtig?", "Ohne möglich?", "Anderen auch?", "Flexibel anpassbar?", "Bewusst gewählt?", "Zukunft behalten?"] },
+      { "q": "Was war der wichtigste Ratschlag oder die wichtigste Lektion, die du jemals bekommen hast?", "sub": ["Von wem?", "Wann war das?", "Warum wichtig?", "Befolgt heute?", "Weitergegeben?", "Leben verändert?", "Oft dran gedacht?", "Anderen empfohlen?"] },
+      { "q": "Welches Erlebnis oder welche Begegnung hat deine Perspektive auf das Leben am meisten verändert?", "sub": ["Wann war das?", "Erwartet oder überraschend?", "Mit wem?", "Warum prägend?", "Heute noch spürbar?", "Bereust du es?", "Dankbar dafür?", "Oft erzählt?"] },
+      { "q": "Was ist deine größte Stärke und wann hast du das zum ersten Mal über dich selbst erkannt?", "sub": ["Seit Kindheit?", "Andere sehen es?", "Beruflich nutzen?", "Privat wichtig?", "Weiterentwickeln?", "Stolz darauf?", "Andere auch?", "Bewusst einsetzen?"] },
+      { "q": "Wenn du eine Fähigkeit perfekt beherrschen könntest, welche wäre das und warum gerade diese?", "sub": ["Praktisch oder Hobby?", "Schon angefangen?", "Zeit investieren?", "Kosten egal?", "Anderen beibringen?", "Beruflich nutzen?", "Lange Traum?", "Realistisch erreichbar?"] },
+      { "q": "Was macht für dich einen perfekten Tag aus und wie oft erlebst du so einen Tag?", "sub": ["Alleine oder zusammen?", "Aktivitäten oder Ruhe?", "Zuhause oder unterwegs?", "Kosten viel?", "Planbar oder spontan?", "Oft möglich?", "Zufrieden danach?", "Mehr davon?"] },
+      { "q": "Welches Buch, welcher Film oder welche Serie hat dich emotional am meisten berührt und warum?", "sub": ["Wann gesehen?", "Genre?", "Charaktere oder Story?", "Weinen müssen?", "Empfohlen bekommen?", "Mehrmals angeschaut?", "Anderen erzählt?", "Verändert etwas?"] },
+      { "q": "Was ist das Mutigste, was du jemals gemacht hast, und würdest du es heute wieder tun?", "sub": ["Wann war das?", "Alleine oder unterstützt?", "Angst gehabt?", "Gut ausgegangen?", "Bereut danach?", "Stolz darauf?", "Gelernt daraus?", "Wieder tun?"] },
+      { "q": "Welche Eigenschaft oder welches Verhalten bei anderen Menschen irritiert oder stört dich am meisten?", "sub": ["Warum genau?", "Oft erlebt?", "Ansprechen oder ignorieren?", "Bei dir auch?", "Toleranz möglich?", "Früher anders?", "Vermeidbar?", "Verständnis zeigen?"] },
+      { "q": "Was würdest du deinem 18-jährigen Ich heute mit auf den Weg geben wollen?", "sub": ["Warnung oder Mut?", "Konkret oder allgemein?", "Hätte es gehört?", "Leben geändert?", "Bereuen etwas?", "Stolz auf Weg?", "Anderen auch raten?", "Ehrlich gemeint?"] },
+      
+      // Philosophisch
+      { "q": "Was bedeutet ein erfolgreiches Leben für dich persönlich, unabhängig von gesellschaftlichen Erwartungen?", "sub": ["Materieller Erfolg?", "Beziehungen wichtig?", "Zeit oder Geld?", "Gesundheit Priorität?", "Balance finden?", "Hat sich geändert?", "Anderen erklärbar?", "Schon erreicht?"] },
+      { "q": "Wenn du die Welt in einer Sache verändern könntest, was wäre das und warum genau diese?", "sub": ["Global oder lokal?", "Sofort umsetzen?", "Konsequenzen bedacht?", "Andere einbeziehen?", "Realistisch machbar?", "Persönlich betroffen?", "Lange überlegt?", "Kompromisse okay?"] },
+      { "q": "Was denkst du, ist der Sinn deines Lebens oder bist du noch auf der Suche danach?", "sub": ["Schon gefunden?", "Verändert sich?", "Braucht man einen?", "Anderen helfen?", "Persönliches Wachstum?", "Glück ausreichend?", "Religion relevant?", "Zweifel manchmal?"] },
+      { "q": "Welche Entscheidung in deinem Leben hat dich zu der Person gemacht, die du heute bist?", "sub": ["Bewusst getroffen?", "Bereust du es?", "Wann war das?", "Andere betroffen?", "Heute anders?", "Gelernt daraus?", "Stolz darauf?", "Wiederholen würdest?"] },
+      { "q": "Glaubst du an Schicksal oder denkst du, dass wir unser Leben vollständig selbst bestimmen können?", "sub": ["Warum glaubst du?", "Erfahrungen gemacht?", "Beide Seiten?", "Freiheit oder Plan?", "Verantwortung tragen?", "Religion spielt Rolle?", "Verändert sich?", "Anderen erklären?"] },
+      { "q": "Was ist wichtiger für ein gutes Leben: Glück, Sinn oder innere Zufriedenheit und Frieden?", "sub": ["Warum das?", "Alle drei möglich?", "Priorisieren müssen?", "Verändert sich?", "Kulturell bedingt?", "Erfahrung gemacht?", "Balance finden?", "Andere Meinung?"] },
+      { "q": "Wenn du wüsstest, dass niemand dein Handeln je erfahren würde, würdest du anders leben?", "sub": ["Ehrliche Antwort?", "Was ändern?", "Moralisch oder praktisch?", "Andere wichtig?", "Reputation Rolle?", "Eigene Werte?", "Schlechtes Gewissen?", "Authentisch heute?"] },
+      { "q": "Was glaubst du, passiert mit unserem Bewusstsein nach dem Tod und warum denkst du das?", "sub": ["Religion beeinflusst?", "Angst davor?", "Trost oder egal?", "Andere Kulturen?", "Wissenschaft oder Glaube?", "Verändert Verhalten?", "Oft nachgedacht?", "Sicher oder unsicher?"] },
+      { "q": "Ist es wichtiger, geliebt zu werden oder zu lieben, und warum siehst du das so?", "sub": ["Eigene Erfahrung?", "Beides gleich?", "Verändert sich?", "Abhängig von?", "Romantisch oder allgemein?", "Selbstliebe auch?", "Balance möglich?", "Geben oder nehmen?"] },
+      { "q": "Denkst du, dass Technologie die Menschheit letztendlich verbessert oder eher schadet und warum?", "sub": ["Beide Seiten?", "Persönlich betroffen?", "Zukunft ängstlich?", "Aufhalten möglich?", "Balance finden?", "Generationen unterschiedlich?", "Konkrete Beispiele?", "Optimistisch oder pessimistisch?"] },
+      { "q": "Was würdest du tun, wenn du unsterblich wärst und unendlich Zeit hättest für alles?", "sub": ["Langweilig werden?", "Lernen was?", "Beziehungen anders?", "Risikofreudiger?", "Verantwortung größer?", "Ziele verändern?", "Einsam werden?", "Zurückwünschen?"] },
+      { "q": "Glaubst du, dass jeder Mensch von Natur aus gut ist oder werden wir durch Umstände geformt?", "sub": ["Nature oder Nurture?", "Eigene Erfahrung?", "Ausnahmen gibt?", "Veränderbar später?", "Verantwortung trotzdem?", "Vergebung möglich?", "Pessimistisch oder optimistisch?", "Wissenschaftlich betrachtet?"] },
+      { "q": "Wenn du die Wahrheit über eine große Frage des Universums erfahren könntest, welche wäre es?", "sub": ["Warum diese?", "Anderen Leben?", "Selbst betroffen?", "Angst vor Antwort?", "Mit Wissen umgehen?", "Teilen oder behalten?", "Praktisch nützlich?", "Philosophisch interessant?"] },
+      { "q": "Was denkst du über freien Willen: Haben wir wirklich die Freiheit zu wählen oder ist alles vorbestimmt?", "sub": ["Wissenschaft relevant?", "Gefühl oder Logik?", "Verantwortung trotzdem?", "Ändert Verhalten?", "Religion wichtig?", "Quantenphysik beachtet?", "Gesellschaft Einfluss?", "Persönlich überzeugt?"] },
+      { "q": "Wenn Geld abgeschafft würde, glaubst du, dass Menschen trotzdem arbeiten und sich weiterentwickeln würden?", "sub": ["Motivation anders?", "Selbst arbeiten?", "Faulheit zunehmen?", "Kreativität steigen?", "Gesellschaft funktionieren?", "Tauschhandel besser?", "Utopie oder Dystopie?", "Realistisch möglich?"] },
+      
+      // Lustig
+      { "q": "Was war der peinlichste Moment in deinem Leben, über den du heute zum Glück lachen kannst?", "sub": ["Wann passiert?", "Wo warst du?", "Wer hat's gesehen?", "Sofort peinlich?", "Reaktion damals?", "Heute noch rot?", "Was gelernt?", "Anderen erzählt?"] },
+      { "q": "Wenn du plötzlich eine Million Euro hättest, was wäre die erste verrückte Sache, die du kaufen würdest?", "sub": ["Wirklich kaufen?", "Sofort oder warten?", "Praktisch oder Spaß?", "Anderen auch was?", "Investieren danach?", "Bereuen möglich?", "Geheim halten?", "Traumkauf seit wann?"] },
+      { "q": "Welche absurde Superkraft würdest du gerne haben und wie würdest du sie im Alltag einsetzen?", "sub": ["Warum diese Kraft?", "Täglich nutzen?", "Anderen helfen?", "Geheim halten?", "Nebenwirkungen okay?", "Verantwortung tragen?", "Tauschen gegen was?", "Für immer?"] },
+      { "q": "Was ist das Seltsamste oder Ungewöhnlichste, das du jemals gegessen hast, und wie war es?", "sub": ["Wo war das?", "Selbst ausgesucht?", "Wie geschmeckt?", "Anderen empfehlen?", "Kulturell bedingt?", "Mutig oder gezwungen?", "Nochmal probieren?", "Schlimmer als erwartet?"] },
+      { "q": "Wenn du für einen Tag mit jemandem den Körper tauschen könntest, wer wäre es und was würdest du tun?", "sub": ["Berühmt oder bekannt?", "Warum diese Person?", "Was erleben?", "Zurücktauschen wollen?", "Peinlich werden?", "Leben verstehen?", "Probleme lösen?", "Anderen sagen?"] },
+      { "q": "Welche völlig sinnlose Fähigkeit würdest du gerne perfekt beherrschen können und warum gerade diese?", "sub": ["Praktisch nutzbar?", "Anderen zeigen?", "Party-Trick?", "Zeit investieren?", "Geld ausgeben?", "Berühmt werden?", "Einzigartig sein?", "Spaßfaktor hoch?"] },
+      { "q": "Wenn Tiere sprechen könnten, welches Tier würde dich vermutlich am meisten nerven und warum?", "sub": ["Haustier oder wild?", "Eigene Erfahrung?", "Was würde es sagen?", "Beschweren über was?", "Anderen auch nerven?", "Lustig oder nervig?", "Ignorieren möglich?", "Gespräch führen?"] },
+      { "q": "Was ist die dümmste Wette, die du jemals eingegangen bist, und hast du gewonnen oder verloren?", "sub": ["Mit wem gewettet?", "Einsatz hoch?", "Bereut danach?", "Gewonnen oder verloren?", "Wieder machen?", "Alkohol im Spiel?", "Narbe davon?", "Lustige Story?"] },
+      { "q": "Wenn du ein Lied wählen müsstest, das bei jedem deiner Auftritte automatisch abgespielt wird, welches wäre es?", "sub": ["Episch oder lustig?", "Peinlich später?", "Andere Meinung?", "Situation angemessen?", "Lautstärke wichtig?", "Text relevant?", "Oft ändern wollen?", "Signatur werden?"] },
+      { "q": "Welche bizarre Verschwörungstheorie findest du heimlich ein bisschen interessant oder unterhaltsam?", "sub": ["Glaubst du dran?", "Nur lustig?", "Anderen erzählt?", "Wie entdeckt?", "Beweise gesehen?", "Verrückt aber möglich?", "Internet gefunden?", "Ernsthaft recherchiert?"] },
+      { "q": "Wenn du eine Reality-Show über dein Leben machen würdest, wie würde sie heißen und worum ginge es?", "sub": ["Titel witzig?", "Genre Comedy?", "Wer schaut zu?", "Peinlich oder stolz?", "Familie dabei?", "Skandale inklusive?", "Cancelled werden?", "Zweite Staffel?"] },
+      { "q": "Was ist das Peinlichste, das in deinem Internet-Suchverlauf zu finden wäre, wenn jemand nachschauen würde?", "sub": ["Wirklich peinlich?", "Löschen regelmäßig?", "Erklärung dafür?", "Anderen zeigen?", "Inkognito benutzen?", "Angst dass jemand sieht?", "Lustig oder creepy?", "Normaler als gedacht?"] },
+      { "q": "Welchen absurden Weltrekord würdest du gerne aufstellen, auch wenn er völlig nutzlos ist?", "sub": ["Realistisch schaffbar?", "Training nötig?", "Geld investieren?", "Berühmt werden?", "Guinness Buch?", "Anderen beeindrucken?", "Geheim halten?", "Stolz darauf sein?"] },
+      { "q": "Wenn du einen ganzen Tag lang wie ein Tier leben müsstest, welches würdest du wählen und was würdest du machen?", "sub": ["Wild oder Haustier?", "Gefährlich oder gemütlich?", "Fliegen oder schwimmen?", "Fressen was?", "Menschensprache behalten?", "Zurücktauschen wollen?", "Abenteuer oder Faulheit?", "Foto dokumentieren?"] },
+      { "q": "Was ist die verrückteste Ausrede, die du jemals benutzt hast, um nicht zur Arbeit oder Schule gehen zu müssen?", "sub": ["Geglaubt worden?", "Kreativ oder dumm?", "Vorbereitet oder spontan?", "Erwischt worden?", "Konsequenzen?", "Bereut danach?", "Anderen geraten?", "Wieder benutzen?"] },
+      
+      // Tief
+      { "q": "Welcher Fehler in deinem Leben hat dich am meisten geprägt und was hast du wirklich daraus gelernt?", "sub": ["Wann passiert?", "Heute anders?", "Emotional schwer?", "Konsequenzen getragen?", "Akzeptiert heute?", "Anderen geholfen?", "Bereust du noch?", "Rat für andere?"] },
+      { "q": "Gibt es etwas in deinem Leben, das du zutiefst bereust und gerne ändern würdest, wenn du könntest?", "sub": ["Was genau?", "Warum bereuen?", "Andere betroffen?", "Möglich zu ändern?", "Wie anders handeln?", "Konsequenzen akzeptieren?", "Daraus gelernt?", "Frieden gefunden?"] },
+      { "q": "Wann hast du dich das letzte Mal wirklich verletzlich und emotional völlig offen gezeigt vor jemandem?", "sub": ["Mit wem?", "Warum damals?", "Schwer gefallen?", "Bereut danach?", "Positive Reaktion?", "Näher gebracht?", "Öfter machen?", "Wichtig für dich?"] },
+      { "q": "Was ist deine größte Angst für die Zukunft und sprichst du offen mit anderen Menschen darüber?", "sub": ["Konkret oder vage?", "Schon lange?", "Realistisch oder übertrieben?", "Kontrollierbar?", "Andere verstehen?", "Dagegen tun?", "Nachts wach?", "Therapie hilfreich?"] },
+      { "q": "Wenn du nur noch ein Jahr zu leben hättest, was würdest du in dieser Zeit unbedingt tun wollen?", "sub": ["Sofort aufhören?", "Reisen wohin?", "Mit wem Zeit?", "Versöhnen mit?", "Erledigen was?", "Ängstlich oder frei?", "Anderen sagen?", "Prioritäten klar?"] },
+      { "q": "Welche Beziehung in deinem Leben hat dich am meisten verletzt und hast du dem Menschen vergeben?", "sub": ["Familie oder Freund?", "Wann war das?", "Kontakt heute?", "Verziehen können?", "Narben geblieben?", "Verstanden warum?", "Wieder vertrauen?", "Losgelassen?"] },
+      { "q": "Gibt es einen Moment in deinem Leben, in dem du dich selbst nicht wiedererkannt oder fremd gefühlt hast?", "sub": ["Wann war das?", "Warum passiert?", "Erschreckend gewesen?", "Verändert danach?", "Anderen erzählt?", "Therapie gesucht?", "Wieder normal?", "Heute verstanden?"] },
+      { "q": "Wofür schämst du dich am meisten, auch wenn niemand anderes davon weiß oder es erfahren muss?", "sub": ["Lange her?", "Bereut tief?", "Jemals erzählen?", "Verzeihen sich selbst?", "Verändert durch?", "Wiedergutmachen möglich?", "Gelernt daraus?", "Loslassen können?"] },
+      { "q": "Welchen Menschen hast du in deinem Leben am meisten enttäuscht und bereust du das heute noch?", "sub": ["Wer war das?", "Bewusst oder unbewusst?", "Entschuldigt danach?", "Verziehen bekommen?", "Beziehung repariert?", "Noch Kontakt?", "Anders handeln heute?", "Gelernt daraus?"] },
+      { "q": "Was würdest du tun, wenn du wüsstest, dass du nie erwischt oder zur Verantwortung gezogen werden würdest?", "sub": ["Ehrliche Antwort?", "Moralisch vertretbar?", "Schlechtes Gewissen?", "Anderen schaden?", "Geld eine Rolle?", "Rache oder Gier?", "Eigene Werte wichtig?", "Wirklich machen?"] },
+      { "q": "Welcher Verlust in deinem Leben hat dich am tiefsten getroffen und wie bist du damit umgegangen?", "sub": ["Person oder anderes?", "Wie lange her?", "Trauerprozess durchlebt?", "Hilfe bekommen?", "Heute besser?", "Erinnerungen schmerzhaft?", "Dankbar für Zeit?", "Weiterleben gelernt?"] },
+      { "q": "Gibt es eine Wahrheit über dich, die du niemals jemandem erzählen würdest, egal wie nah er dir steht?", "sub": ["Warum Geheimnis?", "Angst vor Reaktion?", "Scham empfinden?", "Gesetz gebrochen?", "Andere verletzen würde?", "Mit ins Grab?", "Bereust du es?", "Therapeut weiß?"] },
+      { "q": "Wann hast du dich in deinem Leben am einsamsten gefühlt, auch wenn vielleicht Menschen um dich waren?", "sub": ["Wo war das?", "Warum einsam?", "Um Hilfe gebeten?", "Verstanden gefühlt?", "Heute anders?", "Oft so gefühlt?", "Überwunden wie?", "Anderen geholfen danach?"] },
+      { "q": "Was würde deine Familie oder deine engsten Freunde überraschen oder schockieren, wenn sie es über dich wüssten?", "sub": ["Wirklich schockierend?", "Angst vor Reaktion?", "Irgendwann erzählen?", "Leben verändern würde?", "Schlimm oder harmlos?", "Verstehen würden?", "Akzeptieren könnten?", "Beziehung gefährden?"] },
+      { "q": "Wenn du eine Sache in deiner Vergangenheit ungeschehen machen könntest, welche wäre es und warum genau diese?", "sub": ["Wann passiert?", "Andere betroffen?", "Konsequenzen heute?", "Gelernt daraus?", "Anders gekommen wäre?", "Bereust zutiefst?", "Verzeihen dir selbst?", "Leben komplett anders?"] }
+    ];
 
-function joinRoom() {
-    myName = document.getElementById("userName").value.trim();
-    gameId = document.getElementById("roomInput").value;
-    const ref = database.ref('rooms/' + gameId);
-    ref.once('value', s => {
-        if(s.exists()) {
-            let p = s.val().players || [];
-            if(!p.includes(myName)) p.push(myName);
-            ref.update({ players: p }).then(showGame);
-        } else alert("Raum nicht gefunden!");
-    });
-}
+    // --- UTILS ---
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
 
-function showGame() {
-    document.getElementById("setup").classList.add("hidden");
-    document.getElementById("game").classList.remove("hidden");
-    document.getElementById("roomCodeText").innerText = gameId;
-    setupAudio(gameId);
-    listenToRoom();
-}
+    function showError(msg) {
+      const box = document.getElementById('errorBox');
+      box.innerText = msg;
+      box.style.display = 'block';
+      setTimeout(() => { box.style.display = 'none'; }, 4000);
+    }
 
-// --- P2P AUDIO LOGIC ---
-function setupAudio(roomCode) {
-    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-        localStream = stream;
-        myPeer = new Peer("SU-" + roomCode + "-" + myName.replace(/\s+/g, ''));
+    // --- FIREBASE INIT ---
+    try {
+      app = initializeApp(firebaseConfig);
+      database = getDatabase(app);
+      
+      // Hide loading, show app
+      document.getElementById('loading').style.opacity = '0';
+      setTimeout(() => {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+      }, 500);
+      
+    } catch (error) {
+      console.error("Firebase Error:", error);
+      document.getElementById('loading').innerHTML = `
+        <div style="color: #d63031; text-align: center; padding: 20px;">
+          <h3>Verbindungsfehler</h3>
+          <p>Bitte überprüfe deine Internetverbindung.</p>
+          <button onclick="location.reload()" style="margin-top:20px; padding:10px 20px; border-radius:8px; border:none; background:var(--primary); color:white;">Neustart</button>
+        </div>
+      `;
+    }
 
-        myPeer.on('call', call => {
-            call.answer(localStream);
-            call.on('stream', remoteStream => playStream(remoteStream));
+    // --- GAME LOGIC ---
+
+    window.createRoom = async function() {
+      const nameInput = document.getElementById('userName');
+      myName = nameInput.value.trim();
+      
+      if(!myName) {
+        showError("Bitte gib deinen Namen ein!");
+        nameInput.focus();
+        return;
+      }
+      
+      gameId = Math.floor(1000 + Math.random() * 9000).toString();
+      isHost = true;
+      
+      try {
+        // Init Room Data
+        await set(ref(database, 'rooms/' + gameId), {
+          players: [myName],
+          currentTurnIndex: 0,
+          currentCard: { 
+            q: "Willkommen! " + myName + " zieht die erste Karte.", 
+            sub: [], 
+            isNew: false 
+          },
+          votedSubs: {}, 
+          activeSubReply: -1,
+          createdAt: serverTimestamp()
         });
+        
+        switchScreen('game');
+        listenToRoom();
+      } catch (error) {
+        console.error(error);
+        showError("Fehler beim Erstellen des Raums.");
+      }
+    };
 
-        // Appeler les autres
-        database.ref('rooms/' + gameId + '/players').once('value', s => {
-            s.val().forEach(pName => {
-                if(pName !== myName) {
-                    const call = myPeer.call("SU-" + roomCode + "-" + pName.replace(/\s+/g, ''), localStream);
-                    call.on('stream', remoteStream => playStream(remoteStream));
-                }
-            });
+    window.joinRoom = async function() {
+      const nameInput = document.getElementById('userName');
+      myName = nameInput.value.trim();
+      const codeInput = document.getElementById('roomInput');
+      gameId = codeInput.value.trim();
+      
+      if(!myName) {
+        showError("Bitte gib deinen Namen ein!");
+        return;
+      }
+      if(!gameId || gameId.length !== 4) {
+        showError("Bitte gib einen gültigen 4-stelligen Code ein.");
+        return;
+      }
+      
+      try {
+        const roomRef = ref(database, 'rooms/' + gameId);
+        const snapshot = await get(roomRef);
+        
+        if(snapshot.exists()) {
+          let playersList = snapshot.val().players || [];
+          
+          // Check duplicate names
+          if(playersList.includes(myName)) {
+            showError("Dieser Name ist bereits vergeben!");
+            return;
+          }
+          
+          playersList.push(myName);
+          await update(roomRef, { players: playersList });
+          isHost = false;
+          switchScreen('game');
+          listenToRoom();
+        } else {
+          showError("Raum nicht gefunden. Überprüfe den Code.");
+        }
+      } catch (error) {
+        console.error(error);
+        showError("Fehler beim Beitreten.");
+      }
+    };
+
+    function switchScreen(screenName) {
+      if(screenName === 'game') {
+        document.getElementById('setup').classList.add('hidden');
+        document.getElementById('game').classList.remove('hidden');
+        document.getElementById('roomCodeDisplay').innerText = gameId;
+      }
+    }
+
+    // Generate unique unseen card
+    function getUniqueCard() {
+      const unseen = allQuestions.filter(q => !seenQuestions.has(q.q));
+      
+      if(unseen.length === 0) {
+        seenQuestions.clear();
+        unseen.push(...allQuestions);
+      }
+      
+      const card = unseen[Math.floor(Math.random() * unseen.length)];
+      seenQuestions.add(card.q);
+      
+      // Mark as new for UI
+      return { ...card, isNew: true }; 
+    }
+
+    window.drawNewCard = async function() {
+      if(isGenerating) return;
+      isGenerating = true;
+      
+      const btn = document.getElementById('drawBtn');
+      const originalText = btn.innerText;
+      btn.disabled = true;
+      btn.innerText = "Lädt...";
+      
+      try {
+        const newCard = getUniqueCard();
+        
+        await update(ref(database, 'rooms/' + gameId), {
+          currentCard: newCard,
+          votedSubs: {},
+          activeSubReply: -1
         });
-    }).catch(() => alert("Zugriff auf Mikrofon verweigert."));
-}
+        
+        showToast("Neue Karte gezogen!");
+      } catch (error) {
+        console.error(error);
+        showError("Fehler beim Laden der Karte.");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = originalText;
+        isGenerating = false;
+      }
+    };
 
-function playStream(stream) {
-    const audio = document.createElement('audio');
-    audio.srcObject = stream;
-    audio.autoplay = true;
-    document.body.appendChild(audio);
-}
+    window.voteSub = async function(index) {
+      try {
+        // votedSubs is an object: { "0": "PlayerName", "1": "PlayerName" }
+        // Since we want to allow multiple people to vote for the same question, 
+        // but only track WHO voted for WHAT:
+        // We'll change structure slightly: votes: { "PlayerName": index }
+        // NOTE: To keep compatible with existing code structure if desired, we could use:
+        // updates[`votedSubs/${Date.now()}`] = { voter: myName, index: index }
+        // But sticking to user's simple structure: votedSubs keys are indices, value is ONE voter.
+        // To support multiple voters, the user's structure `votedSubs: {}` might be insufficient if keys collide.
+        // I'll use a slightly more robust structure for the update: `votedSubs/${myName}` = index
+        
+        await update(ref(database, 'rooms/' + gameId), {
+          [`votedSubs/${myName}`]: index
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
-function toggleAudio() {
-    isMuted = !isMuted;
-    localStream.getAudioTracks()[0].enabled = !isMuted;
-    const btn = document.getElementById("muteBtn");
-    btn.innerText = isMuted ? "🔇 Audio: AUS" : "🎤 Audio: AN";
-    btn.style.background = isMuted ? "var(--danger)" : "#fdcb6e";
-}
+    window.selectReply = async function(index) {
+      try {
+        await update(ref(database, 'rooms/' + gameId), {
+          activeSubReply: index
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
-// --- SYNC LOGIC ---
-function listenToRoom() {
-    database.ref('rooms/' + gameId).on('value', s => {
-        const data = s.val();
-        players = data.players;
-        currentTurnIndex = data.currentTurnIndex;
+    window.nextPlayer = async function() {
+      const nextIdx = (currentTurnIndex + 1) % players.length;
+      try {
+        await update(ref(database, 'rooms/' + gameId), {
+          currentTurnIndex: nextIdx,
+          votedSubs: {},
+          activeSubReply: -1,
+          // Keep current card or reset? Let's keep it so next player can see it, or reset text.
+          currentCard: { q: players[nextIdx] + " ist dran!", sub: [], isNew: false }
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    window.copyRoomCode = function() {
+      navigator.clipboard.writeText(gameId).then(() => {
+        showToast("Code kopiert!");
+      }).catch(err => {
+        showToast("Fehler beim Kopieren");
+      });
+    };
+
+    // --- SYNC & UI RENDER ---
+    function listenToRoom() {
+      const roomRef = ref(database, 'rooms/' + gameId);
+      
+      onValue(roomRef, (snapshot) => {
+        const data = snapshot.val();
+        if(!data) {
+          alert("Der Raum wurde geschlossen.");
+          location.reload();
+          return;
+        }
+        
+        players = data.players || [];
+        currentTurnIndex = data.currentTurnIndex || 0;
         const activePlayer = players[currentTurnIndex];
         const isMyTurn = (activePlayer === myName);
 
-        document.getElementById("turnInfo").innerText = isMyTurn ? "Du bist dran!" : activePlayer + " antwortet...";
-        document.getElementById("questionText").innerText = data.currentCard.q;
-        document.getElementById("drawBtn").classList.toggle("hidden", !isMyTurn);
+        // Update Static UI
+        document.getElementById('playerCount').innerText = players.length;
+        
+        const turnInfo = document.getElementById('turnInfo');
+        if(isMyTurn) {
+          turnInfo.innerText = "🎯 Du bist dran!";
+          turnInfo.classList.add('active');
+        } else {
+          turnInfo.innerText = "🎤 " + activePlayer + " antwortet...";
+          turnInfo.classList.remove('active');
+        }
+
+        // Render Card
+        const card = data.currentCard || { q: "Lade...", sub: [], isNew: false };
+        const qText = document.getElementById('questionText');
+        const badge = document.getElementById('neueBadge');
+        
+        // Only animate if text changed significantly
+        if(qText.innerText !== card.q) {
+          qText.innerText = card.q;
+          const qCard = document.getElementById('questionCard');
+          qCard.classList.remove('new-card');
+          void qCard.offsetWidth; // trigger reflow
+          if(card.isNew && card.sub.length > 0) {
+            qCard.classList.add('new-card');
+          }
+        }
+        
+        badge.classList.toggle('hidden', !card.isNew);
+
+        // Layout Switching
+        const activeControls = document.getElementById('activeControls');
+        const votingControls = document.getElementById('votingControls');
+        const drawBtn = document.getElementById('drawBtn');
+        const answeringSection = document.getElementById('answeringSection');
+        const nextBtn = document.getElementById('nextBtn');
 
         if(isMyTurn) {
-            document.getElementById("votingSection").classList.add("hidden");
-            document.getElementById("answeringSection").classList.remove("hidden");
-            renderAnsweringList(data.currentCard.sub || [], data.votedSubs || {}, data.activeSubReply);
+          activeControls.classList.remove('hidden');
+          votingControls.classList.add('hidden');
+          
+          // Only show draw button if card has no subs (fresh card)
+          if(card.sub.length === 0) {
+            drawBtn.classList.remove('hidden');
+            answeringSection.classList.add('hidden');
+          } else {
+            drawBtn.classList.add('hidden');
+            answeringSection.classList.remove('hidden');
+            
+            // Render Voting List for Active Player
+            renderAnsweringList(card.sub, data.votedSubs || {}, data.activeSubReply);
+            
+            // Show Next Button if a reply is selected
+            nextBtn.classList.toggle('hidden', data.activeSubReply === -1);
+          }
         } else {
-            document.getElementById("votingSection").classList.remove("hidden");
-            document.getElementById("answeringSection").classList.add("hidden");
-            renderVotingGrid(data.currentCard.sub || [], data.votedSubs || {});
+          activeControls.classList.add('hidden');
+          votingControls.classList.remove('hidden');
+          renderVotingGrid(card.sub, data.votedSubs || {});
         }
+      });
+    }
 
-        // Donner la priorité audio au joueur actif
-        if(localStream) {
-            localStream.getAudioTracks()[0].enabled = isMyTurn;
-            document.getElementById("muteBtn").innerText = isMyTurn ? "🎤 Audio: AN" : "🔇 Audio: AUS";
-        }
-    });
-}
+    function renderVotingGrid(subs, votes) {
+      const grid = document.getElementById('subGrid');
+      grid.innerHTML = "";
+      
+      if(subs.length === 0) {
+        grid.innerHTML = `<div class="empty-state">Der Spieler zieht gerade eine Karte...</div>`;
+        return;
+      }
+      
+      // Check if I have voted
+      const myVote = votes[myName]; 
 
-function drawNewCard() {
-    const card = cardsDatabase[Math.floor(Math.random() * cardsDatabase.length)];
-    database.ref('rooms/' + gameId).update({ currentCard: card, votedSubs: {}, activeSubReply: -1 });
-}
-
-function renderVotingGrid(subs, votedSubs) {
-    const grid = document.getElementById("subGrid"); grid.innerHTML = "";
-    subs.forEach((text, i) => {
+      subs.forEach((text, index) => {
         const btn = document.createElement("div");
-        btn.className = "sub-btn" + (votedSubs[i] === myName ? " voted" : "");
+        // Check if ANYONE voted for this to show some feedback? 
+        // Let's highlight my vote
+        const isSelected = (myVote === index);
+        
+        btn.className = "sub-btn" + (isSelected ? " voted" : "");
         btn.innerText = text;
-        btn.onclick = () => {
-            const up = {}; up[`votedSubs/${i}`] = myName;
-            database.ref('rooms/' + gameId).update(up);
-        };
+        btn.onclick = () => voteSub(index);
         grid.appendChild(btn);
-    });
-}
+      });
+    }
 
-function renderAnsweringList(subs, votedSubs, activeReply) {
-    const list = document.getElementById("votedList"); list.innerHTML = "";
-    Object.keys(votedSubs).forEach(k => {
-        const i = parseInt(k);
-        const div = document.createElement("div");
-        div.className = "card" + (activeReply === i ? " active-reply" : "");
-        div.innerText = subs[i] + " (Votiert von " + votedSubs[i] + ")";
-        div.onclick = () => database.ref('rooms/' + gameId).update({ activeSubReply: i });
-        list.appendChild(div);
-    });
-}
-
-function nextPlayer() {
-    const nextIdx = (currentTurnIndex + 1) % players.length;
-    database.ref('rooms/' + gameId).update({ currentTurnIndex: nextIdx, votedSubs: {}, activeSubReply: -1 });
-}
-</script>
+    function renderAnsweringList(subs, votes, activeIndex) {
+      const list = document.getElementById('votedList');
+      list.innerHTML = "";
+      
+      if(Object.keys(votes).length === 0) {
+        list.innerHTML = `<div class="empty-state">Warte auf Stimmen der anderen...</div>`;
+        return;
+      }
+      
+      // Group votes by sub index
+      const voteCounts = {};
+      const voterNames = {}; // index -> [names]
+      
+      for(const [voter, idx] of Object.entries(votes)) {
+        voteCounts[idx] = (voteCounts[idx] || 0) + 1;
+        if(!voterNames[idx]) voterNames[idx] = [];
+        voterNames[idx].push(voter);
+      }
+      
+      // Sort subs by popularity (optional, or keep original order)
+      subs.forEach((text, index) => {
+        if(voteCounts[index]) {
+          const div = document.createElement("div");
+          const isSelected = (activeIndex === index);
+          
+          div.className = "voted-item" + (isSelected ? " selected" : "");
+          
+          div.innerHTML = `
+            <div class="voted-question">${text}</div>
+            <div class="voted-by">🗳️ ${voteCounts[index]} Stimme${voteCounts[index]>1?'n':''} (${voterNames[index].join(', ')})</div>
+          `;
+          
+          div.onclick = () => selectReply(index);
+          list.appendChild(div);
+        }
+      });
+    }
+  </script>
 </body>
 </html>
