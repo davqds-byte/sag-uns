@@ -652,8 +652,8 @@
           <div id="votedList" class="voted-list"></div>
           
           <!-- Bouton de secours si bug détecté -->
-          <button id="forceDrawBtn" class="btn-danger hidden" onclick="drawNewCard()">
-            ⚠️ Bug? Karte zurücksetzen
+          <button id="forceDrawBtn" class="btn-danger hidden" onclick="forceResetCard()">
+            ⚠️ Karte zurücksetzen
           </button>
 
           <button id="nextBtn" onclick="nextPlayer()" class="btn-secondary hidden">
@@ -677,7 +677,7 @@
 
   <!-- FOOTER -->
   <footer class="footer">
-    credit : desingned by AGOGO Marzouk powered by AI
+    credit : designed by AGOGO Marzouk powered by AI
   </footer>
 
   <!-- Firebase & Game Logic -->
@@ -706,6 +706,8 @@
     // Local state to track what THIS user has seen
     let seenQuestions = new Set();
     let isGenerating = false;
+    let lastCardQuestion = ""; // Track last card to detect changes
+    let isVoting = false; // Prevent double-voting
 
     const allQuestions = [
       // Allgemein
@@ -842,7 +844,8 @@
           },
           votedSubs: {}, 
           activeSubReply: -1,
-          createdAt: serverTimestamp()
+          createdAt: serverTimestamp(),
+          lastUpdate: Date.now() // Add timestamp for debugging
         });
         
         switchScreen('game');
@@ -882,7 +885,10 @@
           }
           
           playersList.push(myName);
-          await update(roomRef, { players: playersList });
+          await update(roomRef, { 
+            players: playersList,
+            lastUpdate: Date.now()
+          });
           isHost = false;
           switchScreen('game');
           listenToRoom();
@@ -919,90 +925,153 @@
       return { ...card, isNew: true }; 
     }
 
+    // FIXED: Draw card with proper state management
     window.drawNewCard = async function() {
-      if(isGenerating) return;
+      if(isGenerating) {
+        console.log("Already generating, skipping...");
+        return;
+      }
+      
       isGenerating = true;
       
       const btn = document.getElementById('drawBtn');
       const forceBtn = document.getElementById('forceDrawBtn');
-      const originalText = btn.innerText;
+      const originalText = btn ? btn.innerText : "";
       
-      if(btn) { btn.disabled = true; btn.innerText = "Lädt..."; }
-      if(forceBtn) { forceBtn.disabled = true; forceBtn.innerText = "Lädt..."; }
+      if(btn) { 
+        btn.disabled = true; 
+        btn.innerText = "Lädt..."; 
+      }
+      if(forceBtn) { 
+        forceBtn.disabled = true; 
+        forceBtn.innerText = "Lädt..."; 
+      }
       
       try {
         const newCard = getUniqueCard();
         
+        // CRITICAL FIX: Always reset votes and reply when drawing new card
         await update(ref(database, 'rooms/' + gameId), {
           currentCard: newCard,
-          votedSubs: {},
-          activeSubReply: -1
+          votedSubs: {}, // Clear all votes
+          activeSubReply: -1, // Clear selected reply
+          lastUpdate: Date.now()
         });
         
+        lastCardQuestion = newCard.q; // Track this card
         showToast("Neue Karte gezogen!");
+        
       } catch (error) {
-        console.error(error);
+        console.error("Error drawing card:", error);
         showError("Fehler beim Laden der Karte.");
       } finally {
-        if(btn) { btn.disabled = false; btn.innerText = originalText; }
-        if(forceBtn) { forceBtn.disabled = false; forceBtn.innerText = "⚠️ Bug? Karte zurücksetzen"; }
-        isGenerating = false;
+        // Always re-enable buttons after timeout
+        setTimeout(() => {
+          if(btn) { 
+            btn.disabled = false; 
+            btn.innerText = originalText || "🎴 Nächste Karte ziehen"; 
+          }
+          if(forceBtn) { 
+            forceBtn.disabled = false; 
+            forceBtn.innerText = "⚠️ Karte zurücksetzen"; 
+          }
+          isGenerating = false;
+        }, 1000);
       }
     };
 
+    // NEW: Force reset function for stuck states
+    window.forceResetCard = async function() {
+      if(isGenerating) return;
+      
+      const confirmed = confirm("Möchtest du wirklich die Karte zurücksetzen? Alle Stimmen gehen verloren.");
+      if(!confirmed) return;
+      
+      await drawNewCard();
+    };
+
+    // FIXED: Prevent double-voting
     window.voteSub = async function(index) {
+      if(isVoting) {
+        console.log("Already voting, skipping...");
+        return;
+      }
+      
+      isVoting = true;
+      
       try {
         await update(ref(database, 'rooms/' + gameId), {
-          [`votedSubs/${myName}`]: index
+          [`votedSubs/${myName}`]: index,
+          lastUpdate: Date.now()
         });
+        
+        showToast("Stimme abgegeben!");
+        
       } catch (error) {
-        console.error(error);
+        console.error("Voting error:", error);
+        showError("Fehler beim Abstimmen.");
+      } finally {
+        // Re-enable voting after delay
+        setTimeout(() => {
+          isVoting = false;
+        }, 500);
       }
     };
 
     window.selectReply = async function(index) {
       try {
         await update(ref(database, 'rooms/' + gameId), {
-          activeSubReply: index
+          activeSubReply: index,
+          lastUpdate: Date.now()
         });
+        
+        showToast("Frage ausgewählt!");
+        
       } catch (error) {
-        console.error(error);
+        console.error("Selection error:", error);
       }
     };
 
-    // --- FIXED: nextPlayer with atomic read to prevent race conditions ---
+    // FIXED: Next player with atomic read and proper cleanup
     window.nextPlayer = async function() {
       try {
-        // 1. Get the CURRENT state from DB to ensure we don't use stale variables
         const roomRef = ref(database, 'rooms/' + gameId);
         const snapshot = await get(roomRef);
         
-        if (!snapshot.exists()) return;
+        if (!snapshot.exists()) {
+          showError("Raum nicht gefunden.");
+          return;
+        }
 
         const data = snapshot.val();
         const currentTurnIndex = data.currentTurnIndex || 0;
         const playersList = data.players || [];
         
-        // Calculate next index based on DB data, not local JS variables
+        // Calculate next index
         const nextIdx = (currentTurnIndex + 1) % playersList.length;
         const nextPlayerName = playersList[nextIdx] || "Spieler " + (nextIdx + 1);
 
-        // 2. Perform the update
+        // CRITICAL FIX: Complete state reset
         await update(ref(database, 'rooms/' + gameId), {
           currentTurnIndex: nextIdx,
-          votedSubs: {},
-          activeSubReply: -1,
-          // Explicitly reset card to clear the "Ghost Round" bug
-          currentCard: { 
+          votedSubs: {}, // Clear votes
+          activeSubReply: -1, // Clear selection
+          currentCard: {  // Reset card
             q: nextPlayerName + " ist dran!", 
             sub: [], 
             isNew: false 
-          }
+          },
+          lastUpdate: Date.now()
         });
+        
+        // Clear local tracking
+        lastCardQuestion = "";
+        
+        showToast("Nächster Spieler: " + nextPlayerName);
         
       } catch (error) {
         console.error("Fehler beim Spielerwechsel:", error);
-        showToast("Fehler beim Wechseln");
+        showError("Fehler beim Wechseln");
       }
     };
 
@@ -1010,11 +1079,12 @@
       navigator.clipboard.writeText(gameId).then(() => {
         showToast("Code kopiert!");
       }).catch(err => {
+        console.error("Copy error:", err);
         showToast("Fehler beim Kopieren");
       });
     };
 
-    // --- SYNC & UI RENDER ---
+    // FIXED: Improved sync with better state management
     function listenToRoom() {
       const roomRef = ref(database, 'rooms/' + gameId);
       
@@ -1026,13 +1096,13 @@
           return;
         }
         
-        // Update Local State (for display purposes)
+        // Update Local State
         players = data.players || [];
         currentTurnIndex = data.currentTurnIndex || 0;
         const activePlayer = players[currentTurnIndex];
         const isMyTurn = (activePlayer === myName);
 
-        // Update Static UI
+        // Update UI
         document.getElementById('playerCount').innerText = players.length;
         
         const turnInfo = document.getElementById('turnInfo');
@@ -1048,14 +1118,21 @@
         const card = data.currentCard || { q: "Lade...", sub: [], isNew: false };
         const qText = document.getElementById('questionText');
         const badge = document.getElementById('neueBadge');
+        const qCard = document.getElementById('questionCard');
         
-        if(qText.innerText !== card.q) {
+        // FIXED: Better animation trigger
+        if(lastCardQuestion !== card.q && card.q !== "") {
           qText.innerText = card.q;
-          const qCard = document.getElementById('questionCard');
+          lastCardQuestion = card.q;
+          
+          // Trigger animation
           qCard.classList.remove('new-card');
-          void qCard.offsetWidth; // trigger reflow
+          void qCard.offsetWidth; // Force reflow
+          
           if(card.isNew && card.sub.length > 0) {
-            qCard.classList.add('new-card');
+            setTimeout(() => {
+              qCard.classList.add('new-card');
+            }, 10);
           }
         }
         
@@ -1073,40 +1150,39 @@
           activeControls.classList.remove('hidden');
           votingControls.classList.add('hidden');
           
-          // SAFETY CHECK FOR "GHOST ROUND" BUG
-          // If we have questions, but no votes, and no reply selected, we are stuck on an old card.
-          const isGhostRound = (card.sub.length > 0 && 
-                                Object.keys(data.votedSubs || {}).length === 0 && 
-                                data.activeSubReply === -1);
-
-          // If card is empty OR it's a ghost round, show Draw Button
-          if(card.sub.length === 0 || isGhostRound) {
+          // IMPROVED: Ghost Round Detection
+          const hasQuestions = card.sub && card.sub.length > 0;
+          const hasVotes = data.votedSubs && Object.keys(data.votedSubs).length > 0;
+          const hasReply = data.activeSubReply !== -1;
+          
+          // Show draw button if: no questions OR (has questions but no engagement)
+          const shouldShowDraw = !hasQuestions || (!hasVotes && !hasReply);
+          
+          if(shouldShowDraw) {
             drawBtn.classList.remove('hidden');
             answeringSection.classList.add('hidden');
-            
-            // If ghost round, show the force button explicitly to alert user
-            if(isGhostRound) {
-              forceDrawBtn.classList.remove('hidden');
-              console.warn("⚠️ Ghost Round detected. Enabling Reset.");
-            } else {
-              forceDrawBtn.classList.add('hidden');
-            }
-
+            forceDrawBtn.classList.add('hidden');
           } else {
             // Normal Answering Phase
             drawBtn.classList.add('hidden');
-            forceDrawBtn.classList.add('hidden');
             answeringSection.classList.remove('hidden');
             
-            renderAnsweringList(card.sub, data.votedSubs || {}, data.activeSubReply);
+            // Show force button if stuck (has questions but something seems off)
+            const isStuck = hasQuestions && !hasVotes && Date.now() - (data.lastUpdate || 0) > 30000;
+            forceDrawBtn.classList.toggle('hidden', !isStuck);
             
-            nextBtn.classList.toggle('hidden', data.activeSubReply === -1);
+            renderAnsweringList(card.sub, data.votedSubs || {}, data.activeSubReply);
+            nextBtn.classList.toggle('hidden', !hasReply);
           }
+          
         } else {
           activeControls.classList.add('hidden');
           votingControls.classList.remove('hidden');
           renderVotingGrid(card.sub, data.votedSubs || {});
         }
+      }, (error) => {
+        console.error("Firebase onValue error:", error);
+        showError("Verbindungsfehler. Bitte neu laden.");
       });
     }
 
@@ -1114,7 +1190,7 @@
       const grid = document.getElementById('subGrid');
       grid.innerHTML = "";
       
-      if(subs.length === 0) {
+      if(!subs || subs.length === 0) {
         grid.innerHTML = `<div class="empty-state">Der Spieler zieht gerade eine Karte...</div>`;
         return;
       }
@@ -1127,7 +1203,14 @@
         
         btn.className = "sub-btn" + (isSelected ? " voted" : "");
         btn.innerText = text;
-        btn.onclick = () => voteSub(index);
+        
+        // Prevent rapid clicking
+        btn.onclick = () => {
+          if(!isVoting) {
+            voteSub(index);
+          }
+        };
+        
         grid.appendChild(btn);
       });
     }
@@ -1136,7 +1219,7 @@
       const list = document.getElementById('votedList');
       list.innerHTML = "";
       
-      if(Object.keys(votes).length === 0) {
+      if(!votes || Object.keys(votes).length === 0) {
         list.innerHTML = `<div class="empty-state">Warte auf Stimmen der anderen...</div>`;
         return;
       }
@@ -1150,15 +1233,20 @@
         voterNames[idx].push(voter);
       }
       
-      subs.forEach((text, index) => {
-        if(voteCounts[index]) {
+      // Sort by vote count (descending)
+      const sortedIndices = Object.keys(voteCounts)
+        .map(idx => parseInt(idx))
+        .sort((a, b) => voteCounts[b] - voteCounts[a]);
+      
+      sortedIndices.forEach((index) => {
+        if(voteCounts[index] && subs[index]) {
           const div = document.createElement("div");
           const isSelected = (activeIndex === index);
           
           div.className = "voted-item" + (isSelected ? " selected" : "");
           
           div.innerHTML = `
-            <div class="voted-question">${text}</div>
+            <div class="voted-question">${subs[index]}</div>
             <div class="voted-by">🗳️ ${voteCounts[index]} Stimme${voteCounts[index]>1?'n':''} (${voterNames[index].join(', ')})</div>
           `;
           
@@ -1167,6 +1255,10 @@
         }
       });
     }
+
+    // Debug info (can be removed in production)
+    console.log("%c🎮 Sag uns! Game Loaded", "color: #6c5ce7; font-size: 16px; font-weight: bold;");
+    console.log("Bugs Fixed: Race conditions, ghost rounds, double-voting, state sync");
   </script>
 </body>
 </html>
