@@ -37,9 +37,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      /* Changement: flex-start pour commencer en haut, mieux pour le footer */
       justify-content: flex-start; 
-      padding: 30px 20px 60px 20px; /* Padding bottom augmenté pour le footer */
+      padding: 30px 20px 60px 20px;
       position: relative;
       overflow-x: hidden;
       color: var(--text-dark);
@@ -102,7 +101,7 @@
       z-index: 1;
       animation: fadeInUp 0.8s ease;
       transition: height 0.3s ease;
-      flex-grow: 1; /* Permet au contenu de pousser le footer si besoin */
+      flex-grow: 1;
       margin-bottom: 20px;
     }
     
@@ -222,6 +221,14 @@
     
     .btn-secondary:hover {
       background: #b2bec3;
+    }
+    
+    .btn-danger {
+      background: #ff7675;
+      color: white;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      padding: 12px;
     }
     
     .divider {
@@ -644,6 +651,11 @@
           </div>
           <div id="votedList" class="voted-list"></div>
           
+          <!-- Bouton de secours si bug détecté -->
+          <button id="forceDrawBtn" class="btn-danger hidden" onclick="drawNewCard()">
+            ⚠️ Bug? Karte zurücksetzen
+          </button>
+
           <button id="nextBtn" onclick="nextPlayer()" class="btn-secondary hidden">
             ➡️ Nächster Spieler
           </button>
@@ -912,9 +924,11 @@
       isGenerating = true;
       
       const btn = document.getElementById('drawBtn');
+      const forceBtn = document.getElementById('forceDrawBtn');
       const originalText = btn.innerText;
-      btn.disabled = true;
-      btn.innerText = "Lädt...";
+      
+      if(btn) { btn.disabled = true; btn.innerText = "Lädt..."; }
+      if(forceBtn) { forceBtn.disabled = true; forceBtn.innerText = "Lädt..."; }
       
       try {
         const newCard = getUniqueCard();
@@ -930,24 +944,14 @@
         console.error(error);
         showError("Fehler beim Laden der Karte.");
       } finally {
-        btn.disabled = false;
-        btn.innerText = originalText;
+        if(btn) { btn.disabled = false; btn.innerText = originalText; }
+        if(forceBtn) { forceBtn.disabled = false; forceBtn.innerText = "⚠️ Bug? Karte zurücksetzen"; }
         isGenerating = false;
       }
     };
 
     window.voteSub = async function(index) {
       try {
-        // votedSubs is an object: { "0": "PlayerName", "1": "PlayerName" }
-        // Since we want to allow multiple people to vote for the same question, 
-        // but only track WHO voted for WHAT:
-        // We'll change structure slightly: votes: { "PlayerName": index }
-        // NOTE: To keep compatible with existing code structure if desired, we could use:
-        // updates[`votedSubs/${Date.now()}`] = { voter: myName, index: index }
-        // But sticking to user's simple structure: votedSubs keys are indices, value is ONE voter.
-        // To support multiple voters, the user's structure `votedSubs: {}` might be insufficient if keys collide.
-        // I'll use a slightly more robust structure for the update: `votedSubs/${myName}` = index
-        
         await update(ref(database, 'rooms/' + gameId), {
           [`votedSubs/${myName}`]: index
         });
@@ -966,18 +970,39 @@
       }
     };
 
+    // --- FIXED: nextPlayer with atomic read to prevent race conditions ---
     window.nextPlayer = async function() {
-      const nextIdx = (currentTurnIndex + 1) % players.length;
       try {
+        // 1. Get the CURRENT state from DB to ensure we don't use stale variables
+        const roomRef = ref(database, 'rooms/' + gameId);
+        const snapshot = await get(roomRef);
+        
+        if (!snapshot.exists()) return;
+
+        const data = snapshot.val();
+        const currentTurnIndex = data.currentTurnIndex || 0;
+        const playersList = data.players || [];
+        
+        // Calculate next index based on DB data, not local JS variables
+        const nextIdx = (currentTurnIndex + 1) % playersList.length;
+        const nextPlayerName = playersList[nextIdx] || "Spieler " + (nextIdx + 1);
+
+        // 2. Perform the update
         await update(ref(database, 'rooms/' + gameId), {
           currentTurnIndex: nextIdx,
           votedSubs: {},
           activeSubReply: -1,
-          // Keep current card or reset? Let's keep it so next player can see it, or reset text.
-          currentCard: { q: players[nextIdx] + " ist dran!", sub: [], isNew: false }
+          // Explicitly reset card to clear the "Ghost Round" bug
+          currentCard: { 
+            q: nextPlayerName + " ist dran!", 
+            sub: [], 
+            isNew: false 
+          }
         });
+        
       } catch (error) {
-        console.error(error);
+        console.error("Fehler beim Spielerwechsel:", error);
+        showToast("Fehler beim Wechseln");
       }
     };
 
@@ -1001,6 +1026,7 @@
           return;
         }
         
+        // Update Local State (for display purposes)
         players = data.players || [];
         currentTurnIndex = data.currentTurnIndex || 0;
         const activePlayer = players[currentTurnIndex];
@@ -1023,7 +1049,6 @@
         const qText = document.getElementById('questionText');
         const badge = document.getElementById('neueBadge');
         
-        // Only animate if text changed significantly
         if(qText.innerText !== card.q) {
           qText.innerText = card.q;
           const qCard = document.getElementById('questionCard');
@@ -1040,6 +1065,7 @@
         const activeControls = document.getElementById('activeControls');
         const votingControls = document.getElementById('votingControls');
         const drawBtn = document.getElementById('drawBtn');
+        const forceDrawBtn = document.getElementById('forceDrawBtn');
         const answeringSection = document.getElementById('answeringSection');
         const nextBtn = document.getElementById('nextBtn');
 
@@ -1047,18 +1073,33 @@
           activeControls.classList.remove('hidden');
           votingControls.classList.add('hidden');
           
-          // Only show draw button if card has no subs (fresh card)
-          if(card.sub.length === 0) {
+          // SAFETY CHECK FOR "GHOST ROUND" BUG
+          // If we have questions, but no votes, and no reply selected, we are stuck on an old card.
+          const isGhostRound = (card.sub.length > 0 && 
+                                Object.keys(data.votedSubs || {}).length === 0 && 
+                                data.activeSubReply === -1);
+
+          // If card is empty OR it's a ghost round, show Draw Button
+          if(card.sub.length === 0 || isGhostRound) {
             drawBtn.classList.remove('hidden');
             answeringSection.classList.add('hidden');
+            
+            // If ghost round, show the force button explicitly to alert user
+            if(isGhostRound) {
+              forceDrawBtn.classList.remove('hidden');
+              console.warn("⚠️ Ghost Round detected. Enabling Reset.");
+            } else {
+              forceDrawBtn.classList.add('hidden');
+            }
+
           } else {
+            // Normal Answering Phase
             drawBtn.classList.add('hidden');
+            forceDrawBtn.classList.add('hidden');
             answeringSection.classList.remove('hidden');
             
-            // Render Voting List for Active Player
             renderAnsweringList(card.sub, data.votedSubs || {}, data.activeSubReply);
             
-            // Show Next Button if a reply is selected
             nextBtn.classList.toggle('hidden', data.activeSubReply === -1);
           }
         } else {
@@ -1078,13 +1119,10 @@
         return;
       }
       
-      // Check if I have voted
       const myVote = votes[myName]; 
 
       subs.forEach((text, index) => {
         const btn = document.createElement("div");
-        // Check if ANYONE voted for this to show some feedback? 
-        // Let's highlight my vote
         const isSelected = (myVote === index);
         
         btn.className = "sub-btn" + (isSelected ? " voted" : "");
@@ -1103,9 +1141,8 @@
         return;
       }
       
-      // Group votes by sub index
       const voteCounts = {};
-      const voterNames = {}; // index -> [names]
+      const voterNames = {}; 
       
       for(const [voter, idx] of Object.entries(votes)) {
         voteCounts[idx] = (voteCounts[idx] || 0) + 1;
@@ -1113,7 +1150,6 @@
         voterNames[idx].push(voter);
       }
       
-      // Sort subs by popularity (optional, or keep original order)
       subs.forEach((text, index) => {
         if(voteCounts[index]) {
           const div = document.createElement("div");
