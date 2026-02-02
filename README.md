@@ -1,29 +1,3 @@
- **Spielen!** 🎉
-
-### Methode 2: Auf einem Webserver hosten
-
-Beide Dateien auf deinen Webserver hochladen (z.B. GitHub Pages, Netlify, Vercel, etc.)
-
-## 📝 Fragen hinzufügen oder bearbeiten
-
-Um Fragen zu ändern, öffne `questions.js` in einem Texteditor und bearbeite die Fragen im folgenden Format:
-
-```javascript
-{ 
-  "q": "Deine Hauptfrage hier?", 
-  "sub": [
-    "Unterfrage 1?", 
-    "Unterfrage 2?", 
-    "Unterfrage 3?",
-    // ... bis zu 8 Unterfragen
-  ] 
-}
-```
-
-**Wichtig:** 
-- Jede Frage muss zwischen `{ }` stehen
-- Fragen müssen mit Komma `,` getrennt sein
-- Die letzte Frage hat KEIN Komma am Ende
 
 ## 🎮 Spielanleitung
 
