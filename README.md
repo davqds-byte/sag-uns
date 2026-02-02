@@ -30,12 +30,6 @@
 ✅ Raum-Code System
 ✅ Turn-basiertes Spielsystem
 
-## 📞 Support
-
-Bei Fragen oder Problemen:
-- Überprüfe, dass beide Dateien im selben Ordner sind
-- Stelle sicher, dass du eine Internetverbindung hast
-- Verwende einen modernen Browser
 
 ## 🎉 Viel Spaß!
 
