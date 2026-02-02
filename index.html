@@ -6,7 +6,7 @@
   <title>Sag uns! - Das Kartenspiel</title>
   
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
     
     :root {
       --primary: #6c5ce7;
@@ -31,7 +31,7 @@
     }
     
     body {
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Syne', sans-serif;
       background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%);
       min-height: 100vh;
       display: flex;
@@ -44,13 +44,14 @@
       color: var(--text-dark);
     }
     
-    /* Hintergrund-Dekoration */
+    /* Background Shapes */
     .bg-shape {
       position: absolute;
       border-radius: 50%;
       z-index: 0;
       filter: blur(60px);
       opacity: 0.6;
+      animation: float 20s ease-in-out infinite;
     }
     
     .bg-shape-1 {
@@ -59,6 +60,7 @@
       background: #ff9ff3;
       top: -100px;
       left: -100px;
+      animation-delay: 0s;
     }
     
     .bg-shape-2 {
@@ -67,6 +69,22 @@
       background: #54a0ff;
       bottom: -50px;
       right: -50px;
+      animation-delay: 5s;
+    }
+    
+    .bg-shape-3 {
+      width: 250px;
+      height: 250px;
+      background: #feca57;
+      top: 50%;
+      right: 10%;
+      animation-delay: 10s;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(30px, -30px) rotate(5deg); }
+      66% { transform: translate(-20px, 20px) rotate(-5deg); }
     }
     
     .header {
@@ -77,16 +95,17 @@
     }
     
     .header h1 {
-      font-size: 2.5rem;
+      font-size: 3rem;
       color: white;
-      font-weight: 700;
+      font-weight: 800;
       text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
       margin-bottom: 5px;
+      letter-spacing: -1px;
     }
     
     .header p {
       color: rgba(255, 255, 255, 0.9);
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: 400;
     }
     
@@ -100,8 +119,6 @@
       position: relative;
       z-index: 1;
       animation: fadeInUp 0.8s ease;
-      transition: height 0.3s ease;
-      flex-grow: 1;
       margin-bottom: 20px;
     }
     
@@ -134,6 +151,331 @@
       margin-bottom: 20px;
     }
     
+    /* WELCOME SCREEN */
+    .welcome-screen {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    
+    .welcome-logo {
+      font-size: 5rem;
+      margin-bottom: 20px;
+      animation: bounce 2s ease-in-out infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .welcome-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 15px;
+      letter-spacing: -1px;
+    }
+    
+    .welcome-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-light);
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+    
+    .welcome-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    
+    .btn-welcome {
+      padding: 20px;
+      border-radius: 16px;
+      border: none;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Syne', sans-serif;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-welcome::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+    
+    .btn-welcome:hover::before {
+      left: 100%;
+    }
+    
+    .btn-welcome-icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+    
+    .btn-welcome-content {
+      flex: 1;
+      text-align: left;
+    }
+    
+    .btn-welcome-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+    
+    .btn-welcome-desc {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      font-weight: 400;
+    }
+    
+    .btn-play {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+    }
+    
+    .btn-play:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(108, 92, 231, 0.5);
+    }
+    
+    .btn-tutorial {
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      color: white;
+      box-shadow: 0 6px 20px rgba(0, 184, 148, 0.4);
+    }
+    
+    .btn-tutorial:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0, 184, 148, 0.5);
+    }
+    
+    /* TUTORIAL SCREEN */
+    .tutorial-screen {
+      padding: 20px;
+    }
+    
+    .tutorial-progress {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      position: relative;
+    }
+    
+    .tutorial-progress::before {
+      content: '';
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      right: 15px;
+      height: 3px;
+      background: #e0e0e0;
+      z-index: 0;
+    }
+    
+    .tutorial-progress-fill {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      height: 3px;
+      background: var(--primary);
+      z-index: 0;
+      transition: width 0.3s ease;
+    }
+    
+    .tutorial-step-indicator {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #999;
+      position: relative;
+      z-index: 1;
+      transition: all 0.3s ease;
+    }
+    
+    .tutorial-step-indicator.active {
+      background: var(--primary);
+      color: white;
+      transform: scale(1.2);
+    }
+    
+    .tutorial-step-indicator.completed {
+      background: var(--accent);
+      color: white;
+    }
+    
+    .tutorial-content {
+      min-height: 300px;
+      margin-bottom: 30px;
+    }
+    
+    .tutorial-step {
+      display: none;
+      animation: fadeInScale 0.5s ease;
+    }
+    
+    .tutorial-step.active {
+      display: block;
+    }
+    
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    .tutorial-step-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .tutorial-step-icon {
+      font-size: 2.5rem;
+    }
+    
+    .tutorial-step-description {
+      font-size: 1rem;
+      color: var(--text-light);
+      line-height: 1.8;
+      margin-bottom: 25px;
+    }
+    
+    .tutorial-demo {
+      background: #f8f9fa;
+      border-radius: 16px;
+      padding: 20px;
+      border: 2px dashed #dfe6e9;
+      margin-bottom: 20px;
+    }
+    
+    .tutorial-demo-card {
+      background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%);
+      color: white;
+      border-radius: 16px;
+      padding: 25px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+      box-shadow: 0 8px 20px rgba(108, 92, 231, 0.3);
+    }
+    
+    .tutorial-demo-options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    
+    .tutorial-demo-option {
+      background: white;
+      border: 2px solid #e0e0e0;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .tutorial-demo-option:hover {
+      border-color: var(--primary);
+      background: #f8f9fa;
+    }
+    
+    .tutorial-demo-option.selected {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    
+    .tutorial-tip {
+      background: #fff9e6;
+      border-left: 4px solid #feca57;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .tutorial-tip-title {
+      font-weight: 700;
+      color: #f39c12;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .tutorial-tip-text {
+      font-size: 0.9rem;
+      color: var(--text-dark);
+      line-height: 1.6;
+    }
+    
+    .tutorial-navigation {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .tutorial-navigation button {
+      flex: 1;
+      padding: 16px;
+      border-radius: 12px;
+      border: none;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: 'Syne', sans-serif;
+    }
+    
+    .tutorial-navigation button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn-skip {
+      background: #dfe6e9;
+      color: var(--text-dark);
+      flex: 0.3;
+    }
+    
+    .btn-skip:hover:not(:disabled) {
+      background: #b2bec3;
+    }
+    
     /* Setup Screen Elements */
     .input-group {
       margin-bottom: 20px;
@@ -142,7 +484,7 @@
     .input-group label {
       display: block;
       color: var(--text-dark);
-      font-weight: 600;
+      font-weight: 700;
       margin-bottom: 8px;
       font-size: 0.9rem;
     }
@@ -154,7 +496,7 @@
       border: 2px solid #e0e0e0;
       border-radius: 12px;
       font-size: 1.1rem;
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Syne', sans-serif;
       transition: all 0.3s ease;
       background: #f8f9fa;
       color: var(--text-dark);
@@ -172,11 +514,11 @@
       padding: 16px;
       border-radius: 12px;
       border: none;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 1rem;
       cursor: pointer;
       transition: all 0.2s ease;
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Syne', sans-serif;
       margin-top: 10px;
       position: relative;
       overflow: hidden;
@@ -278,6 +620,7 @@
       font-weight: 700;
       color: var(--primary);
       letter-spacing: 1px;
+      font-family: 'Space Mono', monospace;
     }
     
     .copy-btn {
@@ -312,7 +655,7 @@
     .turn-info {
       text-align: center;
       font-size: 1.1rem;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-light);
       margin-bottom: 20px;
       padding: 12px;
@@ -336,7 +679,7 @@
       padding: 30px 20px;
       margin: 20px 0;
       font-size: 1.3rem;
-      font-weight: 600;
+      font-weight: 700;
       text-align: center;
       box-shadow: 0 10px 25px rgba(108, 92, 231, 0.35);
       line-height: 1.5;
@@ -393,7 +736,7 @@
       border-radius: 12px;
       cursor: pointer;
       transition: all 0.2s ease;
-      font-weight: 500;
+      font-weight: 600;
       color: var(--text-dark);
       text-align: center;
       font-size: 0.9rem;
@@ -453,7 +796,7 @@
     }
     
     .voted-question {
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-dark);
       font-size: 1rem;
       margin-bottom: 5px;
@@ -463,7 +806,7 @@
     .voted-by {
       color: var(--text-light);
       font-size: 0.8rem;
-      font-weight: 500;
+      font-weight: 600;
       display: flex;
       align-items: center;
       gap: 5px;
@@ -485,6 +828,7 @@
       z-index: 1000;
       box-shadow: 0 10px 20px rgba(0,0,0,0.2);
       white-space: nowrap;
+      font-weight: 600;
     }
     
     .toast.show {
@@ -502,6 +846,7 @@
       text-align: center;
       border: 1px solid #fab1a0;
       display: none;
+      font-weight: 600;
     }
 
     .empty-state {
@@ -520,7 +865,7 @@
       text-align: center;
       color: rgba(255, 255, 255, 0.8);
       font-size: 0.7rem;
-      font-weight: 500;
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 1px;
       z-index: 10;
@@ -562,11 +907,15 @@
     
     /* Mobile Optimizations */
     @media (max-width: 480px) {
-      .header h1 { font-size: 2rem; }
+      .header h1 { font-size: 2.2rem; }
+      .welcome-title { font-size: 2rem; }
+      .welcome-logo { font-size: 4rem; }
       .container { padding: 20px; }
       .question-card { font-size: 1.15rem; padding: 25px 15px; }
       .sub-grid { grid-template-columns: 1fr; }
       .footer { font-size: 0.65rem; }
+      .btn-welcome-title { font-size: 1.1rem; }
+      .tutorial-step-title { font-size: 1.5rem; }
     }
   </style>
 </head>
@@ -575,11 +924,12 @@
   <!-- Background Shapes -->
   <div class="bg-shape bg-shape-1"></div>
   <div class="bg-shape bg-shape-2"></div>
+  <div class="bg-shape bg-shape-3"></div>
 
   <!-- Loading Screen -->
   <div id="loading" class="loading-overlay">
     <div class="loading-spinner"></div>
-    <div style="font-weight: 500; color: var(--text-dark);">Lade Spiel...</div>
+    <div style="font-weight: 600; color: var(--text-dark);">Lade Spiel...</div>
   </div>
 
   <!-- Toast Notification -->
@@ -591,8 +941,165 @@
       <p>Das Kartenspiel für eure Runde</p>
     </header>
 
+    <!-- WELCOME SCREEN -->
+    <div id="welcome" class="container">
+      <div class="welcome-screen">
+        <div class="welcome-logo">🎴</div>
+        <h2 class="welcome-title">Willkommen!</h2>
+        <p class="welcome-subtitle">
+          Ein Spiel für tiefere Gespräche und echte Verbindungen. Wähle, wie du starten möchtest:
+        </p>
+        
+        <div class="welcome-buttons">
+          <button class="btn-welcome btn-play" onclick="skipToSetup()">
+            <div class="btn-welcome-icon">🚀</div>
+            <div class="btn-welcome-content">
+              <div class="btn-welcome-title">Direkt spielen</div>
+              <div class="btn-welcome-desc">Für erfahrene Spieler</div>
+            </div>
+          </button>
+          
+          <button class="btn-welcome btn-tutorial" onclick="startTutorial()">
+            <div class="btn-welcome-icon">📚</div>
+            <div class="btn-welcome-content">
+              <div class="btn-welcome-title">Tutorial ansehen</div>
+              <div class="btn-welcome-desc">Lerne die Spielregeln</div>
+            </div>
+          </button>
+        </div>
+        
+        <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 20px;">
+          💡 Tipp: Das Tutorial dauert nur 2 Minuten!
+        </p>
+      </div>
+    </div>
+
+    <!-- TUTORIAL SCREEN -->
+    <div id="tutorial" class="container hidden">
+      <div class="tutorial-screen">
+        <div class="tutorial-progress">
+          <div class="tutorial-progress-fill" id="tutorialProgressFill"></div>
+          <div class="tutorial-step-indicator" id="step1Indicator">1</div>
+          <div class="tutorial-step-indicator" id="step2Indicator">2</div>
+          <div class="tutorial-step-indicator" id="step3Indicator">3</div>
+          <div class="tutorial-step-indicator" id="step4Indicator">4</div>
+        </div>
+        
+        <div class="tutorial-content">
+          <!-- Step 1: Willkommen -->
+          <div class="tutorial-step active" id="tutorialStep1">
+            <h3 class="tutorial-step-title">
+              <span class="tutorial-step-icon">👋</span>
+              Wie es funktioniert
+            </h3>
+            <p class="tutorial-step-description">
+              <strong>Sag uns!</strong> ist ein Kartenspiel für 2+ Spieler. Einer von euch ist aktiv und beantwortet eine gezogene Frage. Die anderen Spieler stimmen für Folgefragen ab, die sie hören möchten.
+            </p>
+            
+            <div class="tutorial-tip">
+              <div class="tutorial-tip-title">💡 Perfekt für:</div>
+              <div class="tutorial-tip-text">
+                Abende mit Freunden, Familie oder dem Partner – um sich besser kennenzulernen und tiefere Gespräche zu führen!
+              </div>
+            </div>
+          </div>
+          
+          <!-- Step 2: Raum erstellen -->
+          <div class="tutorial-step" id="tutorialStep2">
+            <h3 class="tutorial-step-title">
+              <span class="tutorial-step-icon">🏠</span>
+              Raum erstellen
+            </h3>
+            <p class="tutorial-step-description">
+              Ein Spieler erstellt einen Raum und erhält einen <strong>4-stelligen Code</strong>. Die anderen Spieler treten mit diesem Code bei. Jeder gibt seinen Namen ein.
+            </p>
+            
+            <div class="tutorial-demo">
+              <div style="text-align: center; padding: 20px; background: white; border-radius: 12px; margin-bottom: 15px;">
+                <div style="font-size: 0.8rem; color: #999; margin-bottom: 8px;">DEIN RAUM-CODE</div>
+                <div style="font-size: 2.5rem; font-weight: 800; color: var(--primary); font-family: 'Space Mono', monospace; letter-spacing: 5px;">
+                  5941
+                </div>
+              </div>
+              <div style="text-align: center; font-size: 0.9rem; color: var(--text-light);">
+                📋 Teile diesen Code mit deinen Freunden
+              </div>
+            </div>
+          </div>
+          
+          <!-- Step 3: Spielablauf -->
+          <div class="tutorial-step" id="tutorialStep3">
+            <h3 class="tutorial-step-title">
+              <span class="tutorial-step-icon">🎮</span>
+              So wird gespielt
+            </h3>
+            <p class="tutorial-step-description">
+              <strong>1.</strong> Der aktive Spieler zieht eine Karte mit einer Frage<br>
+              <strong>2.</strong> Alle anderen stimmen für eine Folgefrage ab<br>
+              <strong>3.</strong> Der aktive Spieler wählt eine Folgefrage aus und antwortet<br>
+              <strong>4.</strong> Weiter zum nächsten Spieler!
+            </p>
+            
+            <div class="tutorial-demo">
+              <div class="tutorial-demo-card">
+                Was war der mutigste Moment deines Lebens?
+              </div>
+              <div style="text-align: center; margin-bottom: 10px; font-size: 0.85rem; color: var(--text-light); font-weight: 600;">
+                Stimme für eine Folgefrage:
+              </div>
+              <div class="tutorial-demo-options">
+                <div class="tutorial-demo-option" onclick="selectTutorialOption(this)">Wann war das?</div>
+                <div class="tutorial-demo-option" onclick="selectTutorialOption(this)">Angst gehabt?</div>
+                <div class="tutorial-demo-option" onclick="selectTutorialOption(this)">Wieder tun?</div>
+                <div class="tutorial-demo-option" onclick="selectTutorialOption(this)">Stolz darauf?</div>
+              </div>
+            </div>
+            
+            <div class="tutorial-tip">
+              <div class="tutorial-tip-title">💬 Tipp:</div>
+              <div class="tutorial-tip-text">
+                Es gibt keine falschen Antworten! Seid ehrlich und habt Spaß dabei.
+              </div>
+            </div>
+          </div>
+          
+          <!-- Step 4: Bereit! -->
+          <div class="tutorial-step" id="tutorialStep4">
+            <h3 class="tutorial-step-title">
+              <span class="tutorial-step-icon">✨</span>
+              Bereit zum Spielen!
+            </h3>
+            <p class="tutorial-step-description">
+              Das war's schon! Du bist jetzt bereit, <strong>Sag uns!</strong> zu spielen. Im nächsten Schritt kannst du einen Raum erstellen oder einem bestehenden Raum beitreten.
+            </p>
+            
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 16px; padding: 30px; text-align: center; margin: 20px 0;">
+              <div style="font-size: 3rem; margin-bottom: 15px;">🎉</div>
+              <div style="font-size: 1.3rem; font-weight: 700; margin-bottom: 10px;">Viel Spaß!</div>
+              <div style="font-size: 0.95rem; opacity: 0.9;">
+                Tiefe Gespräche warten auf euch
+              </div>
+            </div>
+            
+            <div class="tutorial-tip">
+              <div class="tutorial-tip-title">🔄 Noch Fragen?</div>
+              <div class="tutorial-tip-text">
+                Du kannst das Tutorial jederzeit erneut ansehen, indem du die Seite neu lädst.
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="tutorial-navigation">
+          <button class="btn-skip" onclick="skipToSetup()" id="skipBtn">Überspringen</button>
+          <button class="btn-secondary" onclick="previousTutorialStep()" id="prevBtn" disabled>← Zurück</button>
+          <button class="btn-primary" onclick="nextTutorialStep()" id="nextBtn">Weiter →</button>
+        </div>
+      </div>
+    </div>
+
     <!-- SETUP SCREEN -->
-    <div id="setup" class="container">
+    <div id="setup" class="container hidden">
       <div id="errorBox" class="error-box"></div>
       
       <div class="input-group">
@@ -646,7 +1153,7 @@
         </button>
         
         <div id="answeringSection" class="hidden">
-          <div style="text-align: center; margin: 15px 0 10px; font-size: 0.9rem; color: var(--text-light);">
+          <div style="text-align: center; margin: 15px 0 10px; font-size: 0.9rem; color: var(--text-light); font-weight: 600;">
             Wähle eine Frage aus, um zu antworten
           </div>
           <div id="votedList" class="voted-list"></div>
@@ -659,7 +1166,7 @@
 
       <!-- Other Players Controls -->
       <div id="votingControls" class="hidden">
-        <div style="text-align: center; margin: 15px 0 10px; font-size: 0.9rem; color: var(--text-light);">
+        <div style="text-align: center; margin: 15px 0 10px; font-size: 0.9rem; color: var(--text-light); font-weight: 600;">
           📝 Stimme für eine Folgefrage ab
         </div>
         <div id="subGrid" class="sub-grid"></div>
@@ -669,8 +1176,11 @@
 
   <!-- FOOTER -->
   <footer class="footer">
-    credit : designed by AGOGO Marzouk powered by AI
+    designed by AGOGO Marzouk × powered by AI
   </footer>
+
+  <!-- Questions externes -->
+  <script src="questions.js"></script>
 
   <!-- Firebase & Game Logic -->
   <script type="module">
@@ -699,75 +1209,18 @@
     let lastCardQuestion = "";
     let isVoting = false;
 
-    const allQuestions = [
-      // Allgemein
-      { "q": "Was ist dir im Leben am wichtigsten und warum hat sich diese Priorität für dich entwickelt?", "sub": ["Seit wann?", "Hat sich geändert?", "Priorität?", "Konflikte?", "Opfer gebracht?", "Bleibt stabil?", "Zukunftspläne?", "Andere Meinung?"] },
-      { "q": "Welche kleinen Momente im Alltag machen dich wirklich glücklich und erfüllt?", "sub": ["Täglich?", "Mit Menschen?", "Alleine auch?", "Warum genau?", "Seit wann?", "Bewusst genießen?", "Mehr davon?", "Teilen mit anderen?"] },
-      { "q": "Was bedeutet echte Freundschaft für dich und was brauchst du von deinen Freunden?", "sub": ["Vertrauen wichtig?", "Zeit zusammen?", "Immer da sein?", "Warum wichtig?", "Grenzen respektieren?", "Langfristig denken?", "Aktiv pflegen?", "Veränderung zulassen?"] },
-      { "q": "Wenn du an deine Kindheit zurückdenkst, was vermisst du am meisten von damals?", "sub": ["Warum vermisst?", "Gefühl oder Ort?", "Menschen dabei?", "Heute anders?", "Zurückholen möglich?", "Oft daran denken?", "Nostalgisch oder traurig?", "Anderen erzählen?"] },
-      { "q": "Was würdest du tun, wenn Geld und Zeit keine Rolle spielen würden in deinem Leben?", "sub": ["Sofort starten?", "Reisen wohin?", "Lernen was?", "Mit wem zusammen?", "Beruflich oder privat?", "Anderen helfen?", "Kreativ sein?", "Langfristig erfüllend?"] },
-      { "q": "Welche Gewohnheit oder Routine gibt dir am meisten Stabilität und Sicherheit im Alltag?", "sub": ["Seit wann?", "Jeden Tag?", "Warum wichtig?", "Ohne möglich?", "Anderen auch?", "Flexibel anpassbar?", "Bewusst gewählt?", "Zukunft behalten?"] },
-      { "q": "Was war der wichtigste Ratschlag oder die wichtigste Lektion, die du jemals bekommen hast?", "sub": ["Von wem?", "Wann war das?", "Warum wichtig?", "Befolgt heute?", "Weitergegeben?", "Leben verändert?", "Oft dran gedacht?", "Anderen empfohlen?"] },
-      { "q": "Welches Erlebnis oder welche Begegnung hat deine Perspektive auf das Leben am meisten verändert?", "sub": ["Wann war das?", "Erwartet oder überraschend?", "Mit wem?", "Warum prägend?", "Heute noch spürbar?", "Bereust du es?", "Dankbar dafür?", "Oft erzählt?"] },
-      { "q": "Was ist deine größte Stärke und wann hast du das zum ersten Mal über dich selbst erkannt?", "sub": ["Seit Kindheit?", "Andere sehen es?", "Beruflich nutzen?", "Privat wichtig?", "Weiterentwickeln?", "Stolz darauf?", "Andere auch?", "Bewusst einsetzen?"] },
-      { "q": "Wenn du eine Fähigkeit perfekt beherrschen könntest, welche wäre das und warum gerade diese?", "sub": ["Praktisch oder Hobby?", "Schon angefangen?", "Zeit investieren?", "Kosten egal?", "Anderen beibringen?", "Beruflich nutzen?", "Lange Traum?", "Realistisch erreichbar?"] },
-      { "q": "Was macht für dich einen perfekten Tag aus und wie oft erlebst du so einen Tag?", "sub": ["Alleine oder zusammen?", "Aktivitäten oder Ruhe?", "Zuhause oder unterwegs?", "Kosten viel?", "Planbar oder spontan?", "Oft möglich?", "Zufrieden danach?", "Mehr davon?"] },
-      { "q": "Welches Buch, welcher Film oder welche Serie hat dich emotional am meisten berührt und warum?", "sub": ["Wann gesehen?", "Genre?", "Charaktere oder Story?", "Weinen müssen?", "Empfohlen bekommen?", "Mehrmals angeschaut?", "Anderen erzählt?", "Verändert etwas?"] },
-      { "q": "Was ist das Mutigste, was du jemals gemacht hast, und würdest du es heute wieder tun?", "sub": ["Wann war das?", "Alleine oder unterstützt?", "Angst gehabt?", "Gut ausgegangen?", "Bereut danach?", "Stolz darauf?", "Gelernt daraus?", "Wieder tun?"] },
-      { "q": "Welche Eigenschaft oder welches Verhalten bei anderen Menschen irritiert oder stört dich am meisten?", "sub": ["Warum genau?", "Oft erlebt?", "Ansprechen oder ignorieren?", "Bei dir auch?", "Toleranz möglich?", "Früher anders?", "Vermeidbar?", "Verständnis zeigen?"] },
-      { "q": "Was würdest du deinem 18-jährigen Ich heute mit auf den Weg geben wollen?", "sub": ["Warnung oder Mut?", "Konkret oder allgemein?", "Hätte es gehört?", "Leben geändert?", "Bereuen etwas?", "Stolz auf Weg?", "Anderen auch raten?", "Ehrlich gemeint?"] },
-      
-      // Philosophisch
-      { "q": "Was bedeutet ein erfolgreiches Leben für dich persönlich, unabhängig von gesellschaftlichen Erwartungen?", "sub": ["Materieller Erfolg?", "Beziehungen wichtig?", "Zeit oder Geld?", "Gesundheit Priorität?", "Balance finden?", "Hat sich geändert?", "Anderen erklärbar?", "Schon erreicht?"] },
-      { "q": "Wenn du die Welt in einer Sache verändern könntest, was wäre das und warum genau diese?", "sub": ["Global oder lokal?", "Sofort umsetzen?", "Konsequenzen bedacht?", "Andere einbeziehen?", "Realistisch machbar?", "Persönlich betroffen?", "Lange überlegt?", "Kompromisse okay?"] },
-      { "q": "Was denkst du, ist der Sinn deines Lebens oder bist du noch auf der Suche danach?", "sub": ["Schon gefunden?", "Verändert sich?", "Braucht man einen?", "Anderen helfen?", "Persönliches Wachstum?", "Glück ausreichend?", "Religion relevant?", "Zweifel manchmal?"] },
-      { "q": "Welche Entscheidung in deinem Leben hat dich zu der Person gemacht, die du heute bist?", "sub": ["Bewusst getroffen?", "Bereust du es?", "Wann war das?", "Andere betroffen?", "Heute anders?", "Gelernt daraus?", "Stolz darauf?", "Wiederholen würdest?"] },
-      { "q": "Glaubst du an Schicksal oder denkst du, dass wir unser Leben vollständig selbst bestimmen können?", "sub": ["Warum glaubst du?", "Erfahrungen gemacht?", "Beide Seiten?", "Freiheit oder Plan?", "Verantwortung tragen?", "Religion spielt Rolle?", "Verändert sich?", "Anderen erklären?"] },
-      { "q": "Was ist wichtiger für ein gutes Leben: Glück, Sinn oder innere Zufriedenheit und Frieden?", "sub": ["Warum das?", "Alle drei möglich?", "Priorisieren müssen?", "Verändert sich?", "Kulturell bedingt?", "Erfahrung gemacht?", "Balance finden?", "Andere Meinung?"] },
-      { "q": "Wenn du wüsstest, dass niemand dein Handeln je erfahren würde, würdest du anders leben?", "sub": ["Ehrliche Antwort?", "Was ändern?", "Moralisch oder praktisch?", "Andere wichtig?", "Reputation Rolle?", "Eigene Werte?", "Schlechtes Gewissen?", "Authentisch heute?"] },
-      { "q": "Was glaubst du, passiert mit unserem Bewusstsein nach dem Tod und warum denkst du das?", "sub": ["Religion beeinflusst?", "Angst davor?", "Trost oder egal?", "Andere Kulturen?", "Wissenschaft oder Glaube?", "Verändert Verhalten?", "Oft nachgedacht?", "Sicher oder unsicher?"] },
-      { "q": "Ist es wichtiger, geliebt zu werden oder zu lieben, und warum siehst du das so?", "sub": ["Eigene Erfahrung?", "Beides gleich?", "Verändert sich?", "Abhängig von?", "Romantisch oder allgemein?", "Selbstliebe auch?", "Balance möglich?", "Geben oder nehmen?"] },
-      { "q": "Denkst du, dass Technologie die Menschheit letztendlich verbessert oder eher schadet und warum?", "sub": ["Beide Seiten?", "Persönlich betroffen?", "Zukunft ängstlich?", "Aufhalten möglich?", "Balance finden?", "Generationen unterschiedlich?", "Konkrete Beispiele?", "Optimistisch oder pessimistisch?"] },
-      { "q": "Was würdest du tun, wenn du unsterblich wärst und unendlich Zeit hättest für alles?", "sub": ["Langweilig werden?", "Lernen was?", "Beziehungen anders?", "Risikofreudiger?", "Verantwortung größer?", "Ziele verändern?", "Einsam werden?", "Zurückwünschen?"] },
-      { "q": "Glaubst du, dass jeder Mensch von Natur aus gut ist oder werden wir durch Umstände geformt?", "sub": ["Nature oder Nurture?", "Eigene Erfahrung?", "Ausnahmen gibt?", "Veränderbar später?", "Verantwortung trotzdem?", "Vergebung möglich?", "Pessimistisch oder optimistisch?", "Wissenschaftlich betrachtet?"] },
-      { "q": "Wenn du die Wahrheit über eine große Frage des Universums erfahren könntest, welche wäre es?", "sub": ["Warum diese?", "Anderen Leben?", "Selbst betroffen?", "Angst vor Antwort?", "Mit Wissen umgehen?", "Teilen oder behalten?", "Praktisch nützlich?", "Philosophisch interessant?"] },
-      { "q": "Was denkst du über freien Willen: Haben wir wirklich die Freiheit zu wählen oder ist alles vorbestimmt?", "sub": ["Wissenschaft relevant?", "Gefühl oder Logik?", "Verantwortung trotzdem?", "Ändert Verhalten?", "Religion wichtig?", "Quantenphysik beachtet?", "Gesellschaft Einfluss?", "Persönlich überzeugt?"] },
-      { "q": "Wenn Geld abgeschafft würde, glaubst du, dass Menschen trotzdem arbeiten und sich weiterentwickeln würden?", "sub": ["Motivation anders?", "Selbst arbeiten?", "Faulheit zunehmen?", "Kreativität steigen?", "Gesellschaft funktionieren?", "Tauschhandel besser?", "Utopie oder Dystopie?", "Realistisch möglich?"] },
-      
-      // Lustig
-      { "q": "Was war der peinlichste Moment in deinem Leben, über den du heute zum Glück lachen kannst?", "sub": ["Wann passiert?", "Wo warst du?", "Wer hat's gesehen?", "Sofort peinlich?", "Reaktion damals?", "Heute noch rot?", "Was gelernt?", "Anderen erzählt?"] },
-      { "q": "Wenn du plötzlich eine Million Euro hättest, was wäre die erste verrückte Sache, die du kaufen würdest?", "sub": ["Wirklich kaufen?", "Sofort oder warten?", "Praktisch oder Spaß?", "Anderen auch was?", "Investieren danach?", "Bereuen möglich?", "Geheim halten?", "Traumkauf seit wann?"] },
-      { "q": "Welche absurde Superkraft würdest du gerne haben und wie würdest du sie im Alltag einsetzen?", "sub": ["Warum diese Kraft?", "Täglich nutzen?", "Anderen helfen?", "Geheim halten?", "Nebenwirkungen okay?", "Verantwortung tragen?", "Tauschen gegen was?", "Für immer?"] },
-      { "q": "Was ist das Seltsamste oder Ungewöhnlichste, das du jemals gegessen hast, und wie war es?", "sub": ["Wo war das?", "Selbst ausgesucht?", "Wie geschmeckt?", "Anderen empfehlen?", "Kulturell bedingt?", "Mutig oder gezwungen?", "Nochmal probieren?", "Schlimmer als erwartet?"] },
-      { "q": "Wenn du für einen Tag mit jemandem den Körper tauschen könntest, wer wäre es und was würdest du tun?", "sub": ["Berühmt oder bekannt?", "Warum diese Person?", "Was erleben?", "Zurücktauschen wollen?", "Peinlich werden?", "Leben verstehen?", "Probleme lösen?", "Anderen sagen?"] },
-      { "q": "Welche völlig sinnlose Fähigkeit würdest du gerne perfekt beherrschen können und warum gerade diese?", "sub": ["Praktisch nutzbar?", "Anderen zeigen?", "Party-Trick?", "Zeit investieren?", "Geld ausgeben?", "Berühmt werden?", "Einzigartig sein?", "Spaßfaktor hoch?"] },
-      { "q": "Wenn Tiere sprechen könnten, welches Tier würde dich vermutlich am meisten nerven und warum?", "sub": ["Haustier oder wild?", "Eigene Erfahrung?", "Was würde es sagen?", "Beschweren über was?", "Anderen auch nerven?", "Lustig oder nervig?", "Ignorieren möglich?", "Gespräch führen?"] },
-      { "q": "Was ist die dümmste Wette, die du jemals eingegangen bist, und hast du gewonnen oder verloren?", "sub": ["Mit wem gewettet?", "Einsatz hoch?", "Bereut danach?", "Gewonnen oder verloren?", "Wieder machen?", "Alkohol im Spiel?", "Narbe davon?", "Lustige Story?"] },
-      { "q": "Wenn du ein Lied wählen müsstest, das bei jedem deiner Auftritte automatisch abgespielt wird, welches wäre es?", "sub": ["Episch oder lustig?", "Peinlich später?", "Andere Meinung?", "Situation angemessen?", "Lautstärke wichtig?", "Text relevant?", "Oft ändern wollen?", "Signatur werden?"] },
-      { "q": "Welche bizarre Verschwörungstheorie findest du heimlich ein bisschen interessant oder unterhaltsam?", "sub": ["Glaubst du dran?", "Nur lustig?", "Anderen erzählt?", "Wie entdeckt?", "Beweise gesehen?", "Verrückt aber möglich?", "Internet gefunden?", "Ernsthaft recherchiert?"] },
-      { "q": "Wenn du eine Reality-Show über dein Leben machen würdest, wie würde sie heißen und worum ginge es?", "sub": ["Titel witzig?", "Genre Comedy?", "Wer schaut zu?", "Peinlich oder stolz?", "Familie dabei?", "Skandale inklusive?", "Cancelled werden?", "Zweite Staffel?"] },
-      { "q": "Was ist das Peinlichste, das in deinem Internet-Suchverlauf zu finden wäre, wenn jemand nachschauen würde?", "sub": ["Wirklich peinlich?", "Löschen regelmäßig?", "Erklärung dafür?", "Anderen zeigen?", "Inkognito benutzen?", "Angst dass jemand sieht?", "Lustig oder creepy?", "Normaler als gedacht?"] },
-      { "q": "Welchen absurden Weltrekord würdest du gerne aufstellen, auch wenn er völlig nutzlos ist?", "sub": ["Realistisch schaffbar?", "Training nötig?", "Geld investieren?", "Berühmt werden?", "Guinness Buch?", "Anderen beeindrucken?", "Geheim halten?", "Stolz darauf sein?"] },
-      { "q": "Wenn du einen ganzen Tag lang wie ein Tier leben müsstest, welches würdest du wählen und was würdest du machen?", "sub": ["Wild oder Haustier?", "Gefährlich oder gemütlich?", "Fliegen oder schwimmen?", "Fressen was?", "Menschensprache behalten?", "Zurücktauschen wollen?", "Abenteuer oder Faulheit?", "Foto dokumentieren?"] },
-      { "q": "Was ist die verrückteste Ausrede, die du jemals benutzt hast, um nicht zur Arbeit oder Schule gehen zu müssen?", "sub": ["Geglaubt worden?", "Kreativ oder dumm?", "Vorbereitet oder spontan?", "Erwischt worden?", "Konsequenzen?", "Bereut danach?", "Anderen geraten?", "Wieder benutzen?"] },
-      
-      // Tief
-      { "q": "Welcher Fehler in deinem Leben hat dich am meisten geprägt und was hast du wirklich daraus gelernt?", "sub": ["Wann passiert?", "Heute anders?", "Emotional schwer?", "Konsequenzen getragen?", "Akzeptiert heute?", "Anderen geholfen?", "Bereust du noch?", "Rat für andere?"] },
-      { "q": "Gibt es etwas in deinem Leben, das du zutiefst bereust und gerne ändern würdest, wenn du könntest?", "sub": ["Was genau?", "Warum bereuen?", "Andere betroffen?", "Möglich zu ändern?", "Wie anders handeln?", "Konsequenzen akzeptieren?", "Daraus gelernt?", "Frieden gefunden?"] },
-      { "q": "Wann hast du dich das letzte Mal wirklich verletzlich und emotional völlig offen gezeigt vor jemandem?", "sub": ["Mit wem?", "Warum damals?", "Schwer gefallen?", "Bereut danach?", "Positive Reaktion?", "Näher gebracht?", "Öfter machen?", "Wichtig für dich?"] },
-      { "q": "Was ist deine größte Angst für die Zukunft und sprichst du offen mit anderen Menschen darüber?", "sub": ["Konkret oder vage?", "Schon lange?", "Realistisch oder übertrieben?", "Kontrollierbar?", "Andere verstehen?", "Dagegen tun?", "Nachts wach?", "Therapie hilfreich?"] },
-      { "q": "Wenn du nur noch ein Jahr zu leben hättest, was würdest du in dieser Zeit unbedingt tun wollen?", "sub": ["Sofort aufhören?", "Reisen wohin?", "Mit wem Zeit?", "Versöhnen mit?", "Erledigen was?", "Ängstlich oder frei?", "Anderen sagen?", "Prioritäten klar?"] },
-      { "q": "Welche Beziehung in deinem Leben hat dich am meisten verletzt und hast du dem Menschen vergeben?", "sub": ["Familie oder Freund?", "Wann war das?", "Kontakt heute?", "Verziehen können?", "Narben geblieben?", "Verstanden warum?", "Wieder vertrauen?", "Losgelassen?"] },
-      { "q": "Gibt es einen Moment in deinem Leben, in dem du dich selbst nicht wiedererkannt oder fremd gefühlt hast?", "sub": ["Wann war das?", "Warum passiert?", "Erschreckend gewesen?", "Verändert danach?", "Anderen erzählt?", "Therapie gesucht?", "Wieder normal?", "Heute verstanden?"] },
-      { "q": "Wofür schämst du dich am meisten, auch wenn niemand anderes davon weiß oder es erfahren muss?", "sub": ["Lange her?", "Bereut tief?", "Jemals erzählen?", "Verzeihen sich selbst?", "Verändert durch?", "Wiedergutmachen möglich?", "Gelernt daraus?", "Loslassen können?"] },
-      { "q": "Welchen Menschen hast du in deinem Leben am meisten enttäuscht und bereust du das heute noch?", "sub": ["Wer war das?", "Bewusst oder unbewusst?", "Entschuldigt danach?", "Verziehen bekommen?", "Beziehung repariert?", "Noch Kontakt?", "Anders handeln heute?", "Gelernt daraus?"] },
-      { "q": "Was würdest du tun, wenn du wüsstest, dass du nie erwischt oder zur Verantwortung gezogen werden würdest?", "sub": ["Ehrliche Antwort?", "Moralisch vertretbar?", "Schlechtes Gewissen?", "Anderen schaden?", "Geld eine Rolle?", "Rache oder Gier?", "Eigene Werte wichtig?", "Wirklich machen?"] },
-      { "q": "Welcher Verlust in deinem Leben hat dich am tiefsten getroffen und wie bist du damit umgegangen?", "sub": ["Person oder anderes?", "Wie lange her?", "Trauerprozess durchlebt?", "Hilfe bekommen?", "Heute besser?", "Erinnerungen schmerzhaft?", "Dankbar für Zeit?", "Weiterleben gelernt?"] },
-      { "q": "Gibt es eine Wahrheit über dich, die du niemals jemandem erzählen würdest, egal wie nah er dir steht?", "sub": ["Warum Geheimnis?", "Angst vor Reaktion?", "Scham empfinden?", "Gesetz gebrochen?", "Andere verletzen würde?", "Mit ins Grab?", "Bereust du es?", "Therapeut weiß?"] },
-      { "q": "Wann hast du dich in deinem Leben am einsamsten gefühlt, auch wenn vielleicht Menschen um dich waren?", "sub": ["Wo war das?", "Warum einsam?", "Um Hilfe gebeten?", "Verstanden gefühlt?", "Heute anders?", "Oft so gefühlt?", "Überwunden wie?", "Anderen geholfen danach?"] },
-      { "q": "Was würde deine Familie oder deine engsten Freunde überraschen oder schockieren, wenn sie es über dich wüssten?", "sub": ["Wirklich schockierend?", "Angst vor Reaktion?", "Irgendwann erzählen?", "Leben verändern würde?", "Schlimm oder harmlos?", "Verstehen würden?", "Akzeptieren könnten?", "Beziehung gefährden?"] },
-      { "q": "Wenn du eine Sache in deiner Vergangenheit ungeschehen machen könntest, welche wäre es und warum genau diese?", "sub": ["Wann passiert?", "Andere betroffen?", "Konsequenzen heute?", "Gelernt daraus?", "Anders gekommen wäre?", "Bereust zutiefst?", "Verzeihen dir selbst?", "Leben komplett anders?"] }
-    ];
+    // Tutorial state
+    let currentTutorialStep = 1;
+    const totalTutorialSteps = 4;
+
+    // Les questions sont chargées depuis questions.js
+    // Vérifier que le fichier est bien chargé
+    if (typeof allQuestions === 'undefined') {
+      console.error('ERREUR: questions.js n\'est pas chargé!');
+      alert('Erreur: Le fichier questions.js est manquant. Veuillez vous assurer qu\'il est dans le même dossier que ce fichier HTML.');
+    } else {
+      console.log(`✅ ${allQuestions.length} questions chargées depuis questions.js`);
+    }
 
     // --- UTILS ---
     function showToast(msg) {
@@ -782,6 +1235,95 @@
       box.innerText = msg;
       box.style.display = 'block';
       setTimeout(() => { box.style.display = 'none'; }, 4000);
+    }
+
+    // --- TUTORIAL FUNCTIONS ---
+    window.startTutorial = function() {
+      document.getElementById('welcome').classList.add('hidden');
+      document.getElementById('tutorial').classList.remove('hidden');
+      currentTutorialStep = 1;
+      updateTutorialUI();
+    };
+
+    window.skipToSetup = function() {
+      document.getElementById('welcome').classList.add('hidden');
+      document.getElementById('tutorial').classList.add('hidden');
+      document.getElementById('setup').classList.remove('hidden');
+    };
+
+    window.nextTutorialStep = function() {
+      if (currentTutorialStep < totalTutorialSteps) {
+        currentTutorialStep++;
+        updateTutorialUI();
+      } else {
+        // Tutorial finished, go to setup
+        skipToSetup();
+      }
+    };
+
+    window.previousTutorialStep = function() {
+      if (currentTutorialStep > 1) {
+        currentTutorialStep--;
+        updateTutorialUI();
+      }
+    };
+
+    window.selectTutorialOption = function(element) {
+      // Remove selection from all options
+      const options = document.querySelectorAll('.tutorial-demo-option');
+      options.forEach(opt => opt.classList.remove('selected'));
+      
+      // Add selection to clicked option
+      element.classList.add('selected');
+      
+      showToast('Gut gemacht! 👍');
+    };
+
+    function updateTutorialUI() {
+      // Update step visibility
+      for (let i = 1; i <= totalTutorialSteps; i++) {
+        const stepElement = document.getElementById(`tutorialStep${i}`);
+        const indicatorElement = document.getElementById(`step${i}Indicator`);
+        
+        if (i === currentTutorialStep) {
+          stepElement.classList.add('active');
+          indicatorElement.classList.add('active');
+          indicatorElement.classList.remove('completed');
+        } else {
+          stepElement.classList.remove('active');
+          indicatorElement.classList.remove('active');
+          
+          if (i < currentTutorialStep) {
+            indicatorElement.classList.add('completed');
+            indicatorElement.innerHTML = '✓';
+          } else {
+            indicatorElement.classList.remove('completed');
+            indicatorElement.innerHTML = i;
+          }
+        }
+      }
+      
+      // Update progress bar
+      const progressPercent = ((currentTutorialStep - 1) / (totalTutorialSteps - 1)) * 100;
+      const progressFill = document.getElementById('tutorialProgressFill');
+      const progressBarWidth = document.querySelector('.tutorial-progress').offsetWidth - 30;
+      progressFill.style.width = (progressBarWidth * progressPercent / 100) + 'px';
+      
+      // Update buttons
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      
+      prevBtn.disabled = currentTutorialStep === 1;
+      
+      if (currentTutorialStep === totalTutorialSteps) {
+        nextBtn.innerHTML = 'Los geht\'s! 🚀';
+        nextBtn.classList.remove('btn-primary');
+        nextBtn.classList.add('btn-accent');
+      } else {
+        nextBtn.innerHTML = 'Weiter →';
+        nextBtn.classList.add('btn-primary');
+        nextBtn.classList.remove('btn-accent');
+      }
     }
 
     // --- FIREBASE INIT ---
@@ -997,7 +1539,6 @@
       }
     };
 
-    // 🔧 CRITICAL FIX: Next player now properly resets to waiting state
     window.nextPlayer = async function() {
       try {
         const roomRef = ref(database, 'rooms/' + gameId);
@@ -1015,15 +1556,13 @@
         const nextIdx = (currentTurnIndex + 1) % playersList.length;
         const nextPlayerName = playersList[nextIdx] || "Spieler " + (nextIdx + 1);
 
-        // 🎯 KEY FIX: Reset to waiting state with empty sub array
-        // This ensures the draw button will show for the next player
         await update(ref(database, 'rooms/' + gameId), {
           currentTurnIndex: nextIdx,
           votedSubs: {},
           activeSubReply: -1,
           currentCard: { 
             q: nextPlayerName + " ist dran!", 
-            sub: [],  // ✅ Empty array = draw button will appear
+            sub: [],
             isNew: false 
           },
           lastUpdate: Date.now()
@@ -1107,16 +1646,13 @@
           activeControls.classList.remove('hidden');
           votingControls.classList.add('hidden');
           
-          // 🎯 FIXED LOGIC: Show draw button if no questions exist
           const hasQuestions = card.sub && card.sub.length > 0;
           
           if(!hasQuestions) {
-            // ✅ No questions = show draw button
             drawBtn.classList.remove('hidden');
             answeringSection.classList.add('hidden');
             console.log("📊 State: Waiting for card draw");
           } else {
-            // ✅ Has questions = show answering section
             drawBtn.classList.add('hidden');
             answeringSection.classList.remove('hidden');
             
@@ -1209,7 +1745,7 @@
     }
 
     console.log("%c🎮 Sag uns! Game Loaded", "color: #6c5ce7; font-size: 16px; font-weight: bold;");
-    console.log("%c✅ Bug Fixed: Draw button now appears correctly after nextPlayer()", "color: #00b894; font-size: 14px;");
+    console.log("%c✨ With interactive tutorial & welcome screen!", "color: #00b894; font-size: 14px;");
   </script>
 </body>
 </html>
